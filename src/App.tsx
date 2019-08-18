@@ -3,9 +3,9 @@ import logo from './logo.svg';
 import './App.css';
 
 import {DudeAdd} from './components/DudeAdd';
-import {ExpenseAdd} from './components/ExpenseAdd';
-import {Expense} from './model/Expense';
-import { ExpenseTable } from './components/ExpenseTable';
+import {TransactionAdd} from './components/TransactionAdd';
+import { Transaction } from './model/Transaction';
+import { TransactionLog } from './components/TransactionLog';
 
 const testDudes : string[] = [
   "dan",
@@ -16,20 +16,24 @@ const testDudes : string[] = [
   "max"
 ];
 
-const testExpenses : Expense[] = [
-  { whoPaid: "max", forWhat : "Car", howMuch : 10000, settlements: [ { dude: 'max', participates: true, settled: true }, { dude: 'dan', participates: true, settled: false } ] },
-  { whoPaid: "dan", forWhat : "House", howMuch : 20000, settlements: [ { dude: 'max', participates: true, settled: false }, { dude: 'dan', participates: true, settled: true } ] }
+const testTrans : Transaction[] = [
+  { contributors: [ "max" ], amount: 10000, description: "Car", consumers: ["max", "dan"] },
+  { contributors: [ "dan" ], amount: 20000, description: "House", consumers: ["max", "dan"] }
 ];
 
 const App: React.FC = () => {
-  const [expenses, setExpenses] = useState<Expense[]>(testExpenses);
+  const [trans, setTrans] = useState<Transaction[]>(testTrans);
   const [allDudes, setAllDudes] = useState<string[]>(testDudes);
+
+  const handleTranAdd = (tran: Transaction) => {
+    setTrans([...trans, tran]);
+  };
 
   return (
     <div className="App">
       <DudeAdd />
-      <ExpenseAdd allDudes={allDudes} />
-      <ExpenseTable expenses={expenses} />
+      <TransactionAdd allDudes={allDudes} onTranAdded={handleTranAdd} />
+      <TransactionLog trans={trans} />
     </div>
   );
 }

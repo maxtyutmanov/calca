@@ -3,18 +3,34 @@ import {Transaction} from '../model/Transaction';
 import { DudeSelector } from './DudeSelector';
 import { changeSelectedDudes } from '../services/Utils';
 import Button from '@material-ui/core/Button';
-import { FormControl, InputLabel, Input, FormHelperText } from '@material-ui/core';
+import { FormControl, InputLabel, Input, FormHelperText, makeStyles, Theme, createStyles, Paper } from '@material-ui/core';
 
 interface TransactionAddProps {
     allDudes: string[],
     onTranAdded: (tran: Transaction) => void;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      marginTop: "15px",
+      marginBottom: "15px",
+      padding: "15px",
+      overflowX: 'auto',
+    },
+    addButton: {
+      width: '100%',
+    },
+  }),
+);
+
 const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
     const [contributors, setContributors] = React.useState<string[]>([]);
     const [consumers, setConsumers] = React.useState<string[]>([]);
     const [amount, setAmount] = React.useState<number>(0);
     const [description, setDescription] = React.useState<string>("");
+    const classes = useStyles();
 
     const handleContributorsChange = (dude: string, isSelected: boolean) => {
         const newContributors = changeSelectedDudes(contributors, dude, isSelected);
@@ -41,7 +57,7 @@ const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
     }
 
     return (
-        <div>
+        <Paper className={classes.root}>
             <FormControl component="fieldset">
                 <FormControl>
                     <InputLabel htmlFor="description">Description</InputLabel>
@@ -55,9 +71,9 @@ const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
                 </FormControl>
                 <DudeSelector header="Contributors" allDudes={props.allDudes} onDudeSelectionChanged={handleContributorsChange} />
                 <DudeSelector header="Consumers" allDudes={props.allDudes} onDudeSelectionChanged={handleConsumersChange} />
-                <Button variant="contained" color="primary" onClick={onSubmit}>Add</Button>
+                <Button className={classes.addButton} variant="contained" color="primary" onClick={onSubmit}>Add</Button>
             </FormControl>
-        </div>
+        </Paper>
     );
 }
 

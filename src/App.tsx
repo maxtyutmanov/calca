@@ -34,8 +34,8 @@ const App: React.FC = () => {
     <div className="App">
       <DudeAdd />
       <TransactionAdd allDudes={allDudes} onTranAdded={handleTranAdd} />
-      <TransactionLog trans={trans} />
       <Balance trans={trans} />
+      <TransactionLog trans={trans} />
     </div>
   );
 }

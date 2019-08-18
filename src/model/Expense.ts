@@ -1,6 +1,8 @@
+import { DudeSettlementInfo } from './DudeSettlementInfo';
+
 export interface Expense {
+    whoPaid: string;
     forWhat: string;
     howMuch: number;
-    whoPaid: string[];
-    sharingDudes: string[];
+    settlements: DudeSettlementInfo[];
 };

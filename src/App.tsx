@@ -7,17 +7,28 @@ import {ExpenseAdd} from './components/ExpenseAdd';
 import {Expense} from './model/Expense';
 import { ExpenseTable } from './components/ExpenseTable';
 
+const testDudes : string[] = [
+  "dan",
+  "jenek",
+  "tanya",
+  "ksyusha",
+  "rinat",
+  "max"
+];
+
 const testExpenses : Expense[] = [
-  { forWhat : "Car", howMuch : 10000, sharingDudes : [ "max", "dan" ], whoPaid : [ "max" ] }
+  { whoPaid: "max", forWhat : "Car", howMuch : 10000, settlements: [ { dude: 'max', participates: true, settled: true }, { dude: 'dan', participates: true, settled: false } ] },
+  { whoPaid: "dan", forWhat : "House", howMuch : 20000, settlements: [ { dude: 'max', participates: true, settled: false }, { dude: 'dan', participates: true, settled: true } ] }
 ];
 
 const App: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>(testExpenses);
+  const [allDudes, setAllDudes] = useState<string[]>(testDudes);
 
   return (
     <div className="App">
       <DudeAdd />
-      <ExpenseAdd />
+      <ExpenseAdd allDudes={allDudes} />
       <ExpenseTable expenses={expenses} />
     </div>
   );

@@ -1,7 +1,8 @@
 import React from 'react';
 
 const DudeAdd: React.FC = () => {
-    return <div>Here we will add dudes</div>;
+    // TODO: add dudes management functionality
+    return <></>;
 }
 
 export { DudeAdd };

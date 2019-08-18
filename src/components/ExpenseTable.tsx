@@ -11,10 +11,10 @@ const ExpenseTable : React.FC<ExpenseTableProps> = (props: ExpenseTableProps) =>
     return (
         <table>
             <thead>
-                <th>Who</th>
+                <th>Who paid</th>
                 <th>For what</th>
                 <th>How much</th>
-                <th>Dudes</th>
+                <th>Settlements</th>
             </thead>
             <tbody>
                 {props.expenses.map(e => <ExpenseRow expense={e} />)}

@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import {DudeAdd} from './components/DudeAdd';
+import {ExpenseAdd} from './components/ExpenseAdd';
+import {Expense} from './model/Expense';
+import { ExpenseTable } from './components/ExpenseTable';
+
+const testExpenses : Expense[] = [
+  { forWhat : "Car", howMuch : 10000, sharingDudes : [ "max", "dan" ], whoPaid : [ "max" ] }
+];
+
 const App: React.FC = () => {
+  const [expenses, setExpenses] = useState<Expense[]>(testExpenses);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <DudeAdd />
+      <ExpenseAdd />
+      <ExpenseTable expenses={expenses} />
     </div>
   );
 }

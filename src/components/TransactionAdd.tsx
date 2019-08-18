@@ -46,6 +46,7 @@ const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
 
     const onSubmit = (event: React.SyntheticEvent) => {
         const tran : Transaction = {
+            id: "0",
             contributors,
             description,
             amount,

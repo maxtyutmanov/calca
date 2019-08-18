@@ -7,6 +7,7 @@ import {TransactionAdd} from './components/TransactionAdd';
 import { Transaction } from './model/Transaction';
 import { TransactionLog } from './components/TransactionLog';
 import { Balance } from './components/Balance';
+import { DataService } from './services/DataService';
 
 const testDudes : string[] = [
   "dan",
@@ -17,25 +18,28 @@ const testDudes : string[] = [
   "max"
 ];
 
-const testTrans : Transaction[] = [
-  { contributors: [ "max" ], amount: 10000, description: "Car", consumers: ["max", "dan"] },
-  { contributors: [ "dan" ], amount: 20000, description: "House", consumers: ["max", "dan"] }
-];
-
 const App: React.FC = () => {
-  const [trans, setTrans] = useState<Transaction[]>(testTrans);
+  const [trans, setTrans] = useState<Transaction[]>([]);
   const [allDudes, setAllDudes] = useState<string[]>(testDudes);
 
+  const ds = new DataService("http://localhost:5000");
+
   const handleTranAdd = (tran: Transaction) => {
-    setTrans([...trans, tran]);
+    ds.addTran(tran).then(_ => {
+      ds.getTrans("default").then(refreshedTrans => {
+        setTrans(refreshedTrans);
+      });
+    })
   };
+
+  ds.getTrans("default").then(refreshedTrans => setTrans(refreshedTrans));
 
   return (
     <div className="App">
-      <DudeAdd />
-      <TransactionAdd allDudes={allDudes} onTranAdded={handleTranAdd} />
-      <Balance trans={trans} />
-      <TransactionLog trans={trans} />
+        <DudeAdd />
+        <TransactionAdd allDudes={allDudes} onTranAdded={handleTranAdd} />
+        <Balance trans={trans} />
+        <TransactionLog trans={trans} />
     </div>
   );
 }

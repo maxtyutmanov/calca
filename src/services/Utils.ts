@@ -5,10 +5,7 @@ export const changeSelectedDudes = (currentDudes: string[], dude: string, isSele
         }
     }
     else {
-        const dudeIndex = currentDudes.findIndex(d => d === dude);
-        if (dudeIndex >= 0) {
-            return currentDudes.splice(dudeIndex, 1);
-        }
+        return currentDudes.filter(d => d !== dude);
     }
 
     return currentDudes;

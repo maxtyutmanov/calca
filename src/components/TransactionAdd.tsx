@@ -2,6 +2,8 @@ import React, { createRef } from 'react';
 import {Transaction} from '../model/Transaction';
 import { DudeSelector } from './DudeSelector';
 import { changeSelectedDudes } from '../services/Utils';
+import Button from '@material-ui/core/Button';
+import { FormControl, InputLabel, Input, FormHelperText } from '@material-ui/core';
 
 interface TransactionAddProps {
     allDudes: string[],
@@ -9,70 +11,54 @@ interface TransactionAddProps {
 }
 
 const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
-    const descriptionInput = createRef<HTMLInputElement>();
-    const amountInput = createRef<HTMLInputElement>();
-
     const [contributors, setContributors] = React.useState<string[]>([]);
     const [consumers, setConsumers] = React.useState<string[]>([]);
+    const [amount, setAmount] = React.useState<number>(0);
+    const [description, setDescription] = React.useState<string>("");
 
     const handleContributorsChange = (dude: string, isSelected: boolean) => {
         const newContributors = changeSelectedDudes(contributors, dude, isSelected);
+        console.log(newContributors);
         setContributors(newContributors);
     }
 
     const handleConsumersChange = (dude: string, isSelected: boolean) => {
         const newConsumers = changeSelectedDudes(consumers, dude, isSelected);
+        console.log(newConsumers);
         setConsumers(newConsumers);
     }
 
     const onSubmit = (event: React.SyntheticEvent) => {
-        if (descriptionInput.current && amountInput.current) {
-            // TODO: error handling
-            
-            const description = descriptionInput.current.value;
-            const amount = parseInt(amountInput.current.value, 10);
+        const tran : Transaction = {
+            contributors,
+            description,
+            amount,
+            consumers
+        };
 
-            const tran : Transaction = {
-                contributors,
-                description,
-                amount,
-                consumers
-            };
-
-            props.onTranAdded(tran);
-
-            descriptionInput.current.value = "";
-            amountInput.current.value = "";
-        }
-
+        props.onTranAdded(tran);
         event.preventDefault();
     }
 
     return (
         <div>
-            <form onSubmit={onSubmit} style={{textAlign: "left"}}>
-                <div>
-                    <label style={{margin: "2px", fontWeight: "bold"}}>Contributors</label>
-                    <DudeSelector allDudes={props.allDudes} onDudeSelectionChanged={handleContributorsChange} />
-                </div>
-                <div>
-                    <label style={{marginRight: "5px", fontWeight: "bold"}}>Description</label>
-                    <input type="text" required ref={descriptionInput} />
-                </div>
-                <div>
-                    <label style={{marginRight: "5px", fontWeight: "bold"}}>Amount</label>
-                    <input type="text" required ref={amountInput} />
-                </div>
-                <div>
-                    <label style={{float: "left", fontWeight: "bold"}}>Consumers</label>
-                    <DudeSelector allDudes={props.allDudes} onDudeSelectionChanged={handleConsumersChange} />
-                </div>
-                <div style={{clear: "both"}}>
-                    <button>Add this expense</button>
-                </div>
-            </form>
+            <FormControl component="fieldset">
+                <FormControl>
+                    <InputLabel htmlFor="description">Description</InputLabel>
+                    <Input id="description" aria-describedby="description-text" onChange={e => setDescription(e.target.value)} />
+                    <FormHelperText id="description-text">What is it that you pay for</FormHelperText>
+                </FormControl>
+                <FormControl>
+                    <InputLabel htmlFor="amount">Amount</InputLabel>
+                    <Input id="amount" aria-describedby="description-text" type="number" onChange={e => setAmount(parseInt(e.target.value, 10))} />
+                    <FormHelperText id="amount-text">How much (roubles please)</FormHelperText>
+                </FormControl>
+                <DudeSelector header="Contributors" allDudes={props.allDudes} onDudeSelectionChanged={handleContributorsChange} />
+                <DudeSelector header="Consumers" allDudes={props.allDudes} onDudeSelectionChanged={handleConsumersChange} />
+                <Button variant="contained" color="primary" onClick={onSubmit}>Add</Button>
+            </FormControl>
         </div>
-    )
+    );
 }
 
 export { TransactionAdd };

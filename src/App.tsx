@@ -6,6 +6,7 @@ import {DudeAdd} from './components/DudeAdd';
 import {TransactionAdd} from './components/TransactionAdd';
 import { Transaction } from './model/Transaction';
 import { TransactionLog } from './components/TransactionLog';
+import { Balance } from './components/Balance';
 
 const testDudes : string[] = [
   "dan",
@@ -34,6 +35,7 @@ const App: React.FC = () => {
       <DudeAdd />
       <TransactionAdd allDudes={allDudes} onTranAdded={handleTranAdd} />
       <TransactionLog trans={trans} />
+      <Balance trans={trans} />
     </div>
   );
 }

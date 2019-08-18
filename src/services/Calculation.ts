@@ -22,9 +22,9 @@ const getBalance = (trans: Transaction[]) : DudeBalance[] => {
 
         tran.consumers.forEach(consumer => {
             if (!Object.keys(hash).includes(consumer)) {
-                hash[consumer] = consumption;
+                hash[consumer] = -consumption;
             } else {
-                hash[consumer] += consumption;
+                hash[consumer] -= consumption;
             }
         });
     });

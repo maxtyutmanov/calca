@@ -7,8 +7,11 @@ interface DudeHash {
 
 const getBalance = (trans: Transaction[]) : DudeBalance[] => {
     const hash : DudeHash = {};
-    
-    trans.forEach(tran => {
+
+    const cancelledTranIds = trans.filter(t => t.cancelsTranId).map(t => t.cancelsTranId!);
+    const effectiveTrans = trans.filter(t => !cancelledTranIds.includes(t.id));
+
+    effectiveTrans.forEach(tran => {
         const contribution = tran.amount / tran.contributors.length;
         const consumption = tran.amount / tran.consumers.length;
 

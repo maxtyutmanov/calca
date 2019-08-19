@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Transaction } from '../model/Transaction';
 import { getBalance } from '../services/Calculation';
 import { makeStyles, createStyles } from '@material-ui/styles';
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Balance: React.FC<BalanceProps> = (props) => {
-    const balance = getBalance(props.trans);
+    const balance = useMemo(() => getBalance(props.trans), [props.trans]);
     const classes = useStyles();
 
     return (

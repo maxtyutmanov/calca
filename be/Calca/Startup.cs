@@ -15,7 +15,8 @@ namespace Calca
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton(new FileStorage(Directory.GetCurrentDirectory()));
+            var storagePath = Path.Join(Directory.GetCurrentDirectory(), "storage");
+            services.AddSingleton(new FileStorage(storagePath));
             services.AddMvc();
         }
 

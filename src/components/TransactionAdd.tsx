@@ -4,6 +4,7 @@ import { DudeSelector } from './DudeSelector';
 import { changeSelectedDudes } from '../services/Utils';
 import Button from '@material-ui/core/Button';
 import { FormControl, InputLabel, Input, FormHelperText, makeStyles, Theme, createStyles, Paper } from '@material-ui/core';
+import moment from 'moment';
 
 interface TransactionAddProps {
     allDudes: string[],
@@ -47,10 +48,13 @@ const TransactionAdd: React.FC<TransactionAddProps> = (props) => {
     const onSubmit = (event: React.SyntheticEvent) => {
         const tran : Transaction = {
             id: "0",
+            collectionId: "default",
+            addedAt: moment().toISOString(),
             contributors,
             description,
             amount,
-            consumers
+            consumers,
+            cancelsTranId: undefined
         };
 
         props.onTranAdded(tran);

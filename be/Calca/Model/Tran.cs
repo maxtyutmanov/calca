@@ -15,16 +15,14 @@ namespace Calca.Model
 
         public DateTime AddedAt { get; set; }
 
-        [Required]
         public string Description { get; set; }
 
-        [Required]
         public double Amount { get; set; }
 
-        [Required]
         public List<string> Contributors { get; set; }
 
-        [Required]
         public List<string> Consumers { get; set; }
+
+        public long? CancelsTranId { get; set; }
     }
 }

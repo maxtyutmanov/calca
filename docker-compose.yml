@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "81:80"
+    networks:
+      - nw
+  backend:
+    build: be
+    networks:
+      - nw
+    environment: 
+      - StoragePath=/etc/calca/storage
+    volumes:
+      - "C:/calca_store:/etc/calca/storage"
+networks:
+  nw:

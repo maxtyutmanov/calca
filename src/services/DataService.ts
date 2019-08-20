@@ -1,15 +1,14 @@
 import { Transaction } from '../model/Transaction';
-import moment from 'moment';
 
 export class DataService {
-    private apiUrl: string;
-
-    constructor(apiUrl: string) {
-        this.apiUrl = apiUrl;
+    private collectionId: string;
+    constructor(collectionId: string) {
+        this.collectionId = collectionId;
     }
 
     public addTran(tran: Transaction) : Promise<Transaction> {
-        return fetch(this.apiUrl + "/api/trans", {
+        tran.collectionId = this.collectionId;
+        return fetch("/api/trans", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -24,8 +23,8 @@ export class DataService {
         });
     }
 
-    public getTrans(collectionId: string) : Promise<Transaction[]> {
-        return fetch(this.apiUrl + "/api/trans/" + collectionId, {
+    public getTrans() : Promise<Transaction[]> {
+        return fetch(`/api/trans/${this.collectionId}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -38,18 +37,17 @@ export class DataService {
         });
     }
 
-    public deleteTran(tranId: string, collectionId: string) : Promise<Transaction> {
-        const tran : Transaction = {
-            id: "0",
-            collectionId: collectionId,
-            addedAt: moment().toISOString(),
-            amount: 0,
-            cancelsTranId: tranId,
-            consumers: [],
-            contributors: [],
-            description: ""
-        };
-
-        return this.addTran(tran);
+    public deleteTran(tranId: string) : Promise<Transaction> {
+        return fetch(`/api/trans/${this.collectionId}/${tranId}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json() as Promise<Transaction>;
+        });
     }
 }

@@ -93,6 +93,17 @@ namespace Calca.Storage
             }
         }
 
+        public Tran DeleteTran(string collectionId, int tranId)
+        {
+            return AppendTran(new Tran()
+            {
+                CancelsTranId = tranId,
+                CollectionId = collectionId,
+                Consumers = new List<string>(),
+                Contributors = new List<string>()
+            });
+        }
+
         private FileStream ExclusiveGetFile(string filePath)
         {
             Exception lastEx = null;

@@ -31,5 +31,11 @@ namespace Calca.Controllers
             var trans = _storage.ReadAllTrans(collectionId);
             return trans;
         }
+
+        [HttpDelete("{collectionId}/{tranId}")]
+        public Tran Delete(string collectionId, int tranId)
+        {
+            return _storage.DeleteTran(collectionId, tranId);
+        }
     }
 }

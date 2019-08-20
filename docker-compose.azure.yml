@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    image: maxtyutmanov/calca-web:latest
+    ports:
+      - "80:80"
+    networks:
+      - nw
+  backend:
+    image: maxtyutmanov/calca-backend:latest
+    networks:
+      - nw
+    environment: 
+      - StoragePath=/etc/calca/storage
+    volumes:
+      - "./calca-storage:/etc/calca/storage"
+networks:
+  nw:

@@ -6,6 +6,7 @@ services:
       - "80:80"
     networks:
       - nw
+    restart: always
   backend:
     image: maxtyutmanov/calca-backend:latest
     networks:
@@ -14,5 +15,6 @@ services:
       - StoragePath=/etc/calca/storage
     volumes:
       - "./calca-storage:/etc/calca/storage"
+    restart: always
 networks:
   nw:

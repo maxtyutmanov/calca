@@ -42,7 +42,8 @@ namespace Calca.Storage
 
                 file.Position += sizeof(long);
 
-                yield return reader.ReadLine();
+                while (!reader.EndOfStream)
+                    yield return reader.ReadLine();
             }
         }
 

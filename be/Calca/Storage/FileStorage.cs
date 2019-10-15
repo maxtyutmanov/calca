@@ -26,26 +26,23 @@ namespace Calca.Storage
         public List<Tran> ReadAllTrans(string collectionId)
         {
             var colPath = Path.Join(_basePath, collectionId);
-            using (var file = ExclusiveGetFile(colPath))
+            var trans = GetLinesFromFile(colPath)
+                .Select(line => JsonConvert.DeserializeObject<Tran>(line))
+                .ToList();
+            return trans;
+        }
+
+        private IEnumerable<string> GetLinesFromFile(string filePath)
+        {
+            using (var file = ExclusiveGetFile(filePath))
             using (var reader = new StreamReader(file, Encoding.UTF8, false, 1024, true))
-            using (var jReader = new JsonTextReader(reader))
             {
                 if (file.Length == 0)
-                    return new List<Tran>();
+                    yield break;
 
                 file.Position += sizeof(long);
 
-                var trans = new List<Tran>();
-                var serializer = new JsonSerializer();
-                while (jReader.Read())
-                {
-                    if (jReader.TokenType == JsonToken.StartObject)
-                    {
-                        trans.Add(serializer.Deserialize<Tran>(jReader));
-                    }
-                }
-
-                return trans;
+                yield return reader.ReadLine();
             }
         }
 
@@ -53,8 +50,8 @@ namespace Calca.Storage
         {
             var colPath = Path.Join(_basePath, tran.CollectionId);
             using (var file = ExclusiveGetFile(colPath))
-            using (var reader = new StreamReader(file, Encoding.UTF8, false, 1024, true))
             {
+                // get last used tran ID from the beginning of the file
                 var buf = new byte[sizeof(long)];
                 var lastTranId = 0L;
                 if (file.Length != 0)
@@ -71,22 +68,14 @@ namespace Calca.Storage
 
                 tran.Id = newTranId;
                 tran.AddedAt = DateTime.UtcNow;
-                var tranStr = JsonConvert.SerializeObject(tran, Formatting.None);
-                var tranBytes = Encoding.UTF8.GetBytes(tranStr);
+
                 file.Position = file.Length;
-                
-                if (newTranId == 1)
+                using (var writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
                 {
-                    var bracketBuf = Encoding.UTF8.GetBytes("[");
-                    file.Write(bracketBuf, 0, bracketBuf.Length);
-                }
-                else
-                {
-                    var commaBuf = Encoding.UTF8.GetBytes(",");
-                    file.Write(commaBuf, 0, commaBuf.Length);
+                    var line = JsonConvert.SerializeObject(tran, Formatting.None);
+                    writer.WriteLine(line);
                 }
 
-                file.Write(tranBytes, 0, tranBytes.Length);
                 file.Flush();
 
                 return tran;

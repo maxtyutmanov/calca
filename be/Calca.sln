@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calca", "Calca\Calca.csproj", "{3DA19B1B-F986-46B0-9F5E-C3DE34CFFD04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.Tests", "Calca.Tests\Calca.Tests.csproj", "{832CB68C-05A6-4D9A-97AE-1D5843F0604F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calca.Tests", "Calca.Tests\Calca.Tests.csproj", "{832CB68C-05A6-4D9A-97AE-1D5843F0604F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.WebApi", "Calca.WebApi\Calca.WebApi.csproj", "{CC6E29CA-CE12-4764-9106-A0A66857048C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.Domain", "Calca.Domain\Calca.Domain.csproj", "{F0E302AE-BAC1-48F6-AD73-9325A1617A28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{322EE413-61B5-4553-B582-A5247F34D32A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.Domain.UnitTests", "Tests\Calca.Domain.UnitTests\Calca.Domain.UnitTests.csproj", "{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +29,24 @@ Global
 		{832CB68C-05A6-4D9A-97AE-1D5843F0604F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{832CB68C-05A6-4D9A-97AE-1D5843F0604F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{832CB68C-05A6-4D9A-97AE-1D5843F0604F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC6E29CA-CE12-4764-9106-A0A66857048C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC6E29CA-CE12-4764-9106-A0A66857048C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC6E29CA-CE12-4764-9106-A0A66857048C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC6E29CA-CE12-4764-9106-A0A66857048C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0E302AE-BAC1-48F6-AD73-9325A1617A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0E302AE-BAC1-48F6-AD73-9325A1617A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0E302AE-BAC1-48F6-AD73-9325A1617A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0E302AE-BAC1-48F6-AD73-9325A1617A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F} = {322EE413-61B5-4553-B582-A5247F34D32A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6B9AEBCE-2A1F-4AB5-9BC9-856D49E99A12}

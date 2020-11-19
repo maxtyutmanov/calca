@@ -7,14 +7,16 @@ namespace Calca.Domain.Accounting
     public class Ledger
     {
         public long Id { get; }
+        public long Version { get; }
         public ICollection<Member> Members { get; }
         public ICollection<Operation> Operations { get; }
 
-        public Ledger(ICollection<Member> members, ICollection<Operation> operations = null, long id = 0)
+        public Ledger(ICollection<Member> members, ICollection<Operation> operations = null, long id = 0, long version = 0)
         {
             // TODO: check members collection
 
             Id = id;
+            Version = version;
             Members = members;
             Operations = operations ?? new List<Operation>();
         }
@@ -44,7 +46,7 @@ namespace Calca.Domain.Accounting
             var balanceItems = subreports.Select(ReduceSubreport).ToList();
             foreach (var member in Members)
             {
-                if (!balanceItems.Any(i => i.Member.UserId == member.UserId))
+                if (!balanceItems.Any(i => i.Member.Id == member.UserId))
                     balanceItems.Add(new BalanceItem(member, 0m));
             }
             balanceItems = balanceItems.OrderBy(i => i.Member.Name).ToList();

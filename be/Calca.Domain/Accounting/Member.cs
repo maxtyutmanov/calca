@@ -4,14 +4,20 @@ using System.Text;
 
 namespace Calca.Domain.Accounting
 {
+    /// <summary>
+    /// Party of the ledger
+    /// </summary>
     public class Member
     {
-        public int UserId { get; set; }
+        public long Id { get; }
 
-        public string Name { get; set; }
+        public long UserId { get; }
 
-        public Member(int userId, string name)
+        public string Name { get; }
+
+        public Member(long userId, string name, long id = 0)
         {
+            Id = id;
             UserId = userId;
             Name = name;
         }

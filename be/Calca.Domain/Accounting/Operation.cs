@@ -7,7 +7,7 @@ namespace Calca.Domain.Accounting
 {
     public class Operation
     {
-        public long Id { get; set; }
+        public long Id { get; }
         public DateTime DateTime { get; }
         public ICollection<Member> From { get; }
         public ICollection<Member> To { get; }

@@ -49,7 +49,10 @@ namespace Calca.Infrastructure.Context
                 .IsUnique();
             mb.Entity<MemberDto>()
                 .HasMany(x => x.Operations)
-                .WithOne(x => x.Member);
+                .WithOne(x => x.Member)
+                // cannot delete members with existing operations
+                // also need to eliminate multiple cascade paths
+                .OnDelete(DeleteBehavior.NoAction); 
 
             mb.Entity<OperationDto>()
                 .ToTable("Operations", "accounting")

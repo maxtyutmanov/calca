@@ -131,7 +131,7 @@ namespace Calca.Infrastructure.Migrations
                     b.HasOne("Calca.Infrastructure.Context.Dto.Accounting.MemberDto", "Member")
                         .WithMany("Operations")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Calca.Infrastructure.Context.Dto.Accounting.OperationDto", "Operation")

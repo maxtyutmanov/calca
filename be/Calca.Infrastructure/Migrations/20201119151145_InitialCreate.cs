@@ -91,8 +91,7 @@ namespace Calca.Infrastructure.Migrations
                         column: x => x.MemberId,
                         principalSchema: "accounting",
                         principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OperationMembers_Operations_OperationId",
                         column: x => x.OperationId,

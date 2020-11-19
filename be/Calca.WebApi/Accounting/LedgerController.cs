@@ -1,4 +1,5 @@
 ﻿using Calca.Domain;
+using Calca.WebApi.Accounting.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,8 @@ namespace Calca.WebApi.Accounting
         {
             var repo = _unitOfWork.GetLedgerRepository();
             var ledger = await repo.GetById(id, ct);
-            throw new NotImplementedException();
+            var ledgerDto = Mapper.Map(ledger);
+            return Ok(ledgerDto);
         }
     }
 }

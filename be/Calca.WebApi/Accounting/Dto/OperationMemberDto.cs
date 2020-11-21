@@ -4,8 +4,6 @@ namespace Calca.WebApi.Accounting.Dto
 {
     public class OperationMemberDto
     {
-        public long OperationId { get; set; }
-
         public long UserId { get; set; }
 
         // TODO: DTO?

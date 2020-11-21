@@ -12,6 +12,6 @@ namespace Calca.Domain.Accounting
 
         Task Add(Ledger ledger, CancellationToken ct);
 
-        Task Update(Ledger ledger, CancellationToken ct);
+        Task Update(Ledger ledger, long version, CancellationToken ct);
     }
 }

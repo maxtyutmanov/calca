@@ -6,10 +6,10 @@ namespace Calca.Domain.Accounting
 {
     public class Ledger
     {
-        public long Id { get; private set;  }
+        public long Id { get; private set; }
         public string Name { get; private set; }
         public List<LedgerMember> Members { get; private set; }
-        public long Version { get; private set; }
+        public long Version { get; set; }
         public long CreatorId { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
@@ -22,5 +22,7 @@ namespace Calca.Domain.Accounting
             CreatorId = creatorId;
             CreatedAt = createdAt;
         }
+
+        public void IncrementVersion() => Version++;
     }
 }

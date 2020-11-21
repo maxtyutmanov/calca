@@ -40,5 +40,10 @@ namespace Calca.Infrastructure
         {
             return new LedgerRepository(_ctx);
         }
+
+        public ILedgerOperationRepository GetLedgerOperationRepository()
+        {
+            return new LedgerOperationRepository(_ctx);
+        }
     }
 }

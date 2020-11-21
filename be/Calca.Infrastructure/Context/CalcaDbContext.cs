@@ -44,12 +44,14 @@ namespace Calca.Infrastructure.Context
             mb.Entity<LedgerOperation>()
                 .ToTable("LedgerOperations", "accounting");
             mb.Entity<LedgerOperation>()
-                .HasMany(x => x.Members);
-            mb.Entity<LedgerOperation>()
                 .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(x => x.CreatorId)
                 .OnDelete(DeleteBehavior.NoAction);
+            mb.Entity<LedgerOperation>()
+                .HasOne<Ledger>()
+                .WithMany()
+                .HasForeignKey(x => x.LedgerId);
 
             mb.Entity<OperationMember>()
                 .ToTable("OperationMembers", "accounting")
@@ -59,6 +61,10 @@ namespace Calca.Infrastructure.Context
                 .WithMany()
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+            mb.Entity<OperationMember>()
+                .HasOne<LedgerOperation>()
+                .WithMany(x => x.Members)
+                .HasForeignKey(x => x.OperationId);
 
             mb.Entity<User>()
                 .ToTable("Users", "auth");

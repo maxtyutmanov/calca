@@ -1,6 +1,8 @@
 using Calca.Domain;
+using Calca.Domain.Accounting;
 using Calca.Infrastructure;
 using Calca.Infrastructure.Context;
+using Calca.Infrastructure.Repo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +46,8 @@ namespace Calca.WebApi
                 });
             });
             services.AddDbContext<CalcaDbContext>(o => o.UseSqlServer(Configuration["ConnectionStrings:Main"]));
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            RegisterRepositories(services);
+            RegisterServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +70,20 @@ namespace Calca.WebApi
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private IServiceCollection RegisterRepositories(IServiceCollection services)
+        {
+            services.AddScoped<ILedgerRepository, LedgerRepository>();
+            services.AddScoped<ILedgerOperationRepository, LedgerOperationRepository>();
+            return services;
+        }
+
+        private IServiceCollection RegisterServices(IServiceCollection services)
+        {
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAccountingService, AccountingService>();
+            return services;
         }
 
         private void BootstrapDatabase(IApplicationBuilder app)

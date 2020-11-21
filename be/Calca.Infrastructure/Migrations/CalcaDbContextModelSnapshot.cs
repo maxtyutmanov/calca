@@ -68,6 +68,9 @@ namespace Calca.Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -77,9 +80,14 @@ namespace Calca.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("LedgerId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
+
+                    b.HasIndex("LedgerId");
 
                     b.ToTable("LedgerOperations", "accounting");
                 });
@@ -95,12 +103,7 @@ namespace Calca.Infrastructure.Migrations
                     b.Property<int>("Side")
                         .HasColumnType("int");
 
-                    b.Property<long?>("LedgerOperationId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("OperationId", "UserId", "Side");
-
-                    b.HasIndex("LedgerOperationId");
 
                     b.HasIndex("UserId");
 
@@ -156,13 +159,21 @@ namespace Calca.Infrastructure.Migrations
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Calca.Domain.Accounting.Ledger", null)
+                        .WithMany()
+                        .HasForeignKey("LedgerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Calca.Domain.Accounting.OperationMember", b =>
                 {
                     b.HasOne("Calca.Domain.Accounting.LedgerOperation", null)
                         .WithMany("Members")
-                        .HasForeignKey("LedgerOperationId");
+                        .HasForeignKey("OperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Calca.Domain.Users.User", null)
                         .WithMany()

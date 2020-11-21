@@ -1,5 +1,6 @@
 ﻿using Calca.Domain.Accounting;
 using Calca.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,17 +20,22 @@ namespace Calca.Infrastructure.Repo
 
         public async Task<Ledger> GetById(long id, CancellationToken ct)
         {
-            return await _ctx.FindAsync<Ledger>(new object[] { id }, ct);
+            var ledger = await _ctx.Ledgers.Include(x => x.Members).FirstOrDefaultAsync(x => x.Id == id, ct);
+            return ledger;
         }
 
         public Task Add(Ledger ledger, CancellationToken ct)
         {
+            ledger.Version = 1;
             _ctx.Ledgers.Add(ledger);
             return _ctx.SaveChangesAsync(ct);
         }
 
-        public Task Update(Ledger ledger, CancellationToken ct)
+        public Task Update(Ledger ledger, long version, CancellationToken ct)
         {
+            _ctx.Entry(ledger).OriginalValues[nameof(Ledger.Version)] = version;
+            // TODO: wrap concurrency exception
+            ledger.IncrementVersion();
             _ctx.Ledgers.Update(ledger);
             return _ctx.SaveChangesAsync(ct);
         }

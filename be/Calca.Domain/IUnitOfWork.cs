@@ -10,6 +10,5 @@ namespace Calca.Domain
     public interface IUnitOfWork : IDisposable
     {
         Task Commit(CancellationToken ct);
-        ILedgerRepository GetLedgerRepository();
     }
 }

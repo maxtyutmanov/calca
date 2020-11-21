@@ -13,13 +13,11 @@ namespace Calca.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly CalcaDbContext _ctx;
         private readonly IDbContextTransaction _tran;
         private bool _committed;
 
         public UnitOfWork(CalcaDbContext ctx)
         {
-            _ctx = ctx;
             _tran = ctx.Database.BeginTransaction();
         }
 
@@ -29,21 +27,10 @@ namespace Calca.Infrastructure
             _committed = true;
         }
 
-
         public void Dispose()
         {
             if (!_committed)
                 _tran.Rollback();
-        }
-
-        public ILedgerRepository GetLedgerRepository()
-        {
-            return new LedgerRepository(_ctx);
-        }
-
-        public ILedgerOperationRepository GetLedgerOperationRepository()
-        {
-            return new LedgerOperationRepository(_ctx);
         }
     }
 }

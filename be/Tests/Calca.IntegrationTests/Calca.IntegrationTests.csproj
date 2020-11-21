@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,7 +7,11 @@
 
   <ItemGroup>
     <PackageReference Include="fluentassertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.10" />
+    <PackageReference Include="microsoft.entityframeworkcore" Version="5.0.0" />
+    <PackageReference Include="microsoft.entityframeworkcore.inmemory" Version="5.0.0" />
     <PackageReference Include="microsoft.net.test.sdk" Version="16.8.0" />
+    <PackageReference Include="serilog.sinks.xunit" Version="2.0.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -16,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Calca.Domain\Calca.Domain.csproj" />
+    <ProjectReference Include="..\..\Calca.WebApi\Calca.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

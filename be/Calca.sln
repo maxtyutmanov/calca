@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{322EE413
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calca.Domain.UnitTests", "Tests\Calca.Domain.UnitTests\Calca.Domain.UnitTests.csproj", "{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.Infrastructure", "Calca.Infrastructure\Calca.Infrastructure.csproj", "{48DABFE4-D1AD-4018-ADBC-801B041603B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calca.Infrastructure", "Calca.Infrastructure\Calca.Infrastructure.csproj", "{48DABFE4-D1AD-4018-ADBC-801B041603B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calca.IntegrationTests", "Tests\Calca.IntegrationTests\Calca.IntegrationTests.csproj", "{46143117-9B1A-4BD2-9D6B-5E2E84459875}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +37,17 @@ Global
 		{48DABFE4-D1AD-4018-ADBC-801B041603B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48DABFE4-D1AD-4018-ADBC-801B041603B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48DABFE4-D1AD-4018-ADBC-801B041603B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46143117-9B1A-4BD2-9D6B-5E2E84459875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46143117-9B1A-4BD2-9D6B-5E2E84459875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46143117-9B1A-4BD2-9D6B-5E2E84459875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46143117-9B1A-4BD2-9D6B-5E2E84459875}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C9C38F03-BF6C-4349-8BDF-349A4F0AA29F} = {322EE413-61B5-4553-B582-A5247F34D32A}
+		{46143117-9B1A-4BD2-9D6B-5E2E84459875} = {322EE413-61B5-4553-B582-A5247F34D32A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6B9AEBCE-2A1F-4AB5-9BC9-856D49E99A12}

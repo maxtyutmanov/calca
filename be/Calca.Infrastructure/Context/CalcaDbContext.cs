@@ -15,6 +15,8 @@ namespace Calca.Infrastructure.Context
 
         public DbSet<LedgerOperation> LedgerOperations { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
         protected override void OnModelCreating(ModelBuilder mb)
         {
             base.OnModelCreating(mb);

@@ -1,4 +1,5 @@
-﻿using Calca.Domain.Accounting;
+﻿using Calca.Domain;
+using Calca.Domain.Accounting;
 using Calca.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using System;

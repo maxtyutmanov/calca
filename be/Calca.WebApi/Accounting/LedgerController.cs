@@ -15,11 +15,13 @@ namespace Calca.WebApi.Accounting
     public class LedgerController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDtoMapper _mapper;
         private readonly IAccountingService _accService;
 
-        public LedgerController(IUnitOfWork unitOfWork, IAccountingService accService)
+        public LedgerController(IUnitOfWork unitOfWork, IDtoMapper mapper, IAccountingService accService)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
             _accService = accService;
         }
 
@@ -29,14 +31,14 @@ namespace Calca.WebApi.Accounting
             var ledger = await _accService.GetLedger(id, ct);
             if (ledger == null)
                 return NotFound();
-            var ledgerDto = Mapper.Map(ledger);
+            var ledgerDto = _mapper.Map<Ledger, LedgerReadDto>(ledger);
             return Ok(ledgerDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]LedgerDto ledgerDto, CancellationToken ct)
+        public async Task<IActionResult> Create([FromBody]LedgerCreateDto ledgerDto, CancellationToken ct)
         {
-            var ledger = Mapper.Map(ledgerDto);
+            var ledger = _mapper.Map<LedgerCreateDto, Ledger>(ledgerDto);
             var id = await _accService.CreateLedger(ledger, ct);
             await _unitOfWork.Commit(ct);
             return CreatedAtAction(nameof(Get), new { id }, null);
@@ -46,7 +48,8 @@ namespace Calca.WebApi.Accounting
         public async Task<IActionResult> GetOperations(long id, CancellationToken ct)
         {
             var operations = await _accService.GetOperations(id, ct);
-            var operationsDto = Mapper.Map(operations);
+            var operationsDto = _mapper
+                .Map<IReadOnlyList<LedgerOperation>, IReadOnlyList<LedgerOperationDto>>(operations);
             return Ok(operationsDto);
         }
 
@@ -54,10 +57,10 @@ namespace Calca.WebApi.Accounting
         public async Task<IActionResult> RegisterOperation(
             long id, 
             [FromHeader(Name = "x-ledger-version")] long ledgerVersion,
-            [FromBody] LedgerOperationDto operationDto, 
+            [FromBody] LedgerOperationCreateDto operationDto, 
             CancellationToken ct)
         {
-            var operation = Mapper.Map(operationDto);
+            var operation = _mapper.Map<LedgerOperationCreateDto, LedgerOperation>(operationDto);
             operation.LedgerId = id;
             await _accService.RegisterOperation(operation, ledgerVersion, ct);
             await _unitOfWork.Commit(ct);

@@ -46,15 +46,14 @@ namespace Calca.WebApi
                 });
             });
             services.AddDbContext<CalcaDbContext>(o => o.UseSqlServer(Configuration["ConnectionStrings:Main"]));
+            RegisterSystemServices(services);
             RegisterRepositories(services);
-            RegisterServices(services);
+            RegisterDomainServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            BootstrapDatabase(app);
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -72,6 +71,14 @@ namespace Calca.WebApi
             });
         }
 
+        private IServiceCollection RegisterSystemServices(IServiceCollection services)
+        {
+            services.AddSingleton<ISystemClock, SystemClock>();
+            services.AddScoped<IDtoMapper, DtoMapper>();
+            services.AddScoped(typeof(DateTimeUtcNowResolver<,>));
+            return services;
+        }
+
         private IServiceCollection RegisterRepositories(IServiceCollection services)
         {
             services.AddScoped<ILedgerRepository, LedgerRepository>();
@@ -79,18 +86,11 @@ namespace Calca.WebApi
             return services;
         }
 
-        private IServiceCollection RegisterServices(IServiceCollection services)
+        private IServiceCollection RegisterDomainServices(IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountingService, AccountingService>();
             return services;
-        }
-
-        private void BootstrapDatabase(IApplicationBuilder app)
-        {
-            using var scope = app.ApplicationServices.CreateScope();
-            using var ctx = scope.ServiceProvider.GetRequiredService<CalcaDbContext>();
-            ctx.Database.Migrate();
         }
     }
 }

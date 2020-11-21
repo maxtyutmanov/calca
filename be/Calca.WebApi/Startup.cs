@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,9 +30,18 @@ namespace Calca.WebApi
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvcCore().AddJsonOptions(o =>
+            services.AddMvcCore().AddApiExplorer().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Shared Ledger Service API",
+                    Version = "v1",
+                    Description = "Shared expences accounting service",
+                });
             });
             services.AddDbContext<CalcaDbContext>(o => o.UseSqlServer(Configuration["ConnectionStrings:Main"]));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -47,6 +57,11 @@ namespace Calca.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Shared Ledger Service API V1");
+            });
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

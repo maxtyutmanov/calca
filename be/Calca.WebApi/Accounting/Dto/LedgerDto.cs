@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 namespace Calca.WebApi.Accounting.Dto
 {
-    public class LedgerApiDto
+    public class LedgerDto
     {
         public long Id { get; set; }
+        public string Name { get; set; }
+        public List<LedgerMemberDto> Members { get; set; }
         public long Version { get; set; }
-        public List<MemberApiDto> Members { get; set; }
-        public List<OperationApiDto> Operations { get; set; }
+        public long CreatorId { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

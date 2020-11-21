@@ -1,9 +1,6 @@
 ﻿using Calca.Domain.Accounting;
-using Calca.Infrastructure.Context.Dto.Accounting;
+using Calca.Domain.Users;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Calca.Infrastructure.Context
 {
@@ -14,58 +11,57 @@ namespace Calca.Infrastructure.Context
         {
         }
 
-        public DbSet<LedgerDto> Ledgers { get; set; }
+        public DbSet<Ledger> Ledgers { get; set; }
 
-        // TODO: remove?
-
-        public DbSet<MemberDto> LedgerMembers { get; set; }
-
-        public DbSet<OperationDto> LedgerOperations { get; set; }
+        public DbSet<LedgerOperation> LedgerOperations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
             base.OnModelCreating(mb);
 
-            mb.Entity<LedgerDto>()
-                .ToTable("Ledgers", "accounting")
-                .HasKey(x => x.Id)
-                .IsClustered();
-            mb.Entity<LedgerDto>()
-                .HasMany(x => x.Members)
-                .WithOne(x => x.Ledger);
-            mb.Entity<LedgerDto>()
-                .HasMany(x => x.Operations)
-                .WithOne(x => x.Ledger);
-            mb.Entity<LedgerDto>()
+            mb.Entity<Ledger>()
+                .ToTable("Ledgers", "accounting");
+            mb.Entity<Ledger>()
+                .HasMany(x => x.Members);
+            mb.Entity<Ledger>()
                 .Property(x => x.Version)
                 .IsConcurrencyToken();
+            mb.Entity<Ledger>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            mb.Entity<MemberDto>()
-                .ToTable("Members", "accounting")
-                .HasKey(x => x.Id)
-                .IsClustered();
-            mb.Entity<MemberDto>()
-                .HasIndex(x => new { x.LedgerId, x.UserId })
-                .IsUnique();
-            mb.Entity<MemberDto>()
-                .HasMany(x => x.Operations)
-                .WithOne(x => x.Member)
-                // cannot delete members with existing operations
-                // also need to eliminate multiple cascade paths
-                .OnDelete(DeleteBehavior.NoAction); 
+            mb.Entity<LedgerMember>()
+                .ToTable("LedgerMembers", "accounting")
+                .HasKey(x => new { x.LedgerId, x.UserId });
+            mb.Entity<LedgerMember>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            mb.Entity<OperationDto>()
-                .ToTable("Operations", "accounting")
-                .HasKey(x => x.Id)
-                .IsClustered();
-            mb.Entity<OperationDto>()
-                .HasMany(x => x.Members)
-                .WithOne(x => x.Operation);
+            mb.Entity<LedgerOperation>()
+                .ToTable("LedgerOperations", "accounting");
+            mb.Entity<LedgerOperation>()
+                .HasMany(x => x.Members);
+            mb.Entity<LedgerOperation>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.CreatorId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            mb.Entity<OperationMemberDto>()
+            mb.Entity<OperationMember>()
                 .ToTable("OperationMembers", "accounting")
-                .HasKey(x => new { x.OperationId, x.MemberId, x.Side })
-                .IsClustered();
+                .HasKey(x => new { x.OperationId, x.UserId, x.Side });
+            mb.Entity<OperationMember>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            mb.Entity<User>()
+                .ToTable("Users", "auth");
         }
     }
 }

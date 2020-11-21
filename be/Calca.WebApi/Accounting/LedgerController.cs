@@ -24,6 +24,8 @@ namespace Calca.WebApi.Accounting
         {
             var repo = _unitOfWork.GetLedgerRepository();
             var ledger = await repo.GetById(id, ct);
+            if (ledger == null)
+                return NotFound();
             var ledgerDto = Mapper.Map(ledger);
             return Ok(ledgerDto);
         }

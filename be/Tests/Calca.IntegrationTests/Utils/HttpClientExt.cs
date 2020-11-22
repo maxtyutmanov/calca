@@ -10,11 +10,17 @@ namespace Calca.IntegrationTests.Utils
 {
     public static class HttpClientExt
     {
-        public static Task<HttpResponseMessage> PostJson<TObject>(this HttpClient http, string uri, TObject obj)
+        public static Task<HttpResponseMessage> PostJson<TObject>(
+            this HttpClient http, string uri, TObject obj, Action<HttpRequestMessage> configure = null)
         {
             var jsonStr = JsonSerializer.Serialize(obj);
             var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
-            return http.PostAsync(uri, content);
+            var request = new HttpRequestMessage(HttpMethod.Post, uri)
+            {
+                Content = content
+            };
+            configure?.Invoke(request);
+            return http.SendAsync(request);
         }
 
         public static async Task<TObject> GetJsonObject<TObject>(this HttpClient http, TObject sample, string uri)

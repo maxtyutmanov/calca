@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Calca.WebApi
@@ -35,6 +36,7 @@ namespace Calca.WebApi
             services.AddMvcCore().AddApiExplorer().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             });
             services.AddSwaggerGen(options =>
             {

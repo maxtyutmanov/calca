@@ -33,7 +33,8 @@ namespace Calca.IntegrationTests.Fixture
         {
             Client.Dispose();
             // to avoid deadlocks
-            await _appFactory.Server.Host.StopAsync();
+            //await _appFactory.Server.Host.StopAsync();
+            await DeleteDb();
             _appFactory.Dispose();
         }
 
@@ -49,6 +50,13 @@ namespace Calca.IntegrationTests.Fixture
         {
             var sc = _appFactory.Services.GetRequiredService<ControlledSystemClock>();
             sc.Override(utcNow);
+        }
+
+        private async Task DeleteDb()
+        {
+            using var scope = _appFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<CalcaDbContext>();
+            await db.Database.EnsureDeletedAsync();
         }
     }
 }

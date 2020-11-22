@@ -27,7 +27,8 @@ namespace Calca.WebApi
                 m.CreateMap<LedgerOperation, LedgerOperationDto>(MemberList.Destination)
                     .ForSourceMember(m => m.LedgerId, o => o.DoNotValidate());
                 m.CreateMap<OperationMember, OperationMemberDto>(MemberList.Destination)
-                    .ForSourceMember(m => m.OperationId, o => o.DoNotValidate());
+                    .ForSourceMember(m => m.OperationId, o => o.DoNotValidate())
+                    .ForMember(m => m.Side, o => o.ConvertUsing<OperationSide>(new OperationSideConverter()));
 
                 // create scenario
 
@@ -49,7 +50,8 @@ namespace Calca.WebApi
                 m.CreateMap<LedgerMemberDto, LedgerMember>()
                     .ForMember(m => m.LedgerId, o => o.Ignore());
                 m.CreateMap<OperationMemberDto, OperationMember>()
-                    .ForMember(m => m.OperationId, o => o.Ignore());
+                    .ForMember(m => m.OperationId, o => o.Ignore())
+                    .ForMember(m => m.Side, o => o.ConvertUsing<OperationSideDto>(new OperationSideConverter()));
             });
         }
 
@@ -61,6 +63,35 @@ namespace Calca.WebApi
         public TTarget Map<TSource, TTarget>(TSource source)
         {
             return _internalMapper.Map<TSource, TTarget>(source);
+        }
+    }
+
+    public class OperationSideConverter : IValueConverter<OperationSide, OperationSideDto>, IValueConverter<OperationSideDto, OperationSide>
+    {
+        public OperationSideDto Convert(OperationSide sourceMember, ResolutionContext context)
+        {
+            switch (sourceMember)
+            {
+                case OperationSide.Creditor:
+                    return OperationSideDto.Creditor;
+                case OperationSide.Debtor:
+                    return OperationSideDto.Debtor;
+                default:
+                    throw new InvalidOperationException($"Unknown value {sourceMember} of enum {nameof(OperationSide)}");
+            }
+        }
+
+        public OperationSide Convert(OperationSideDto sourceMember, ResolutionContext context)
+        {
+            switch (sourceMember)
+            {
+                case OperationSideDto.Creditor:
+                    return OperationSide.Creditor;
+                case OperationSideDto.Debtor:
+                    return OperationSide.Debtor;
+                default:
+                    throw new InvalidOperationException($"Unknown value {sourceMember} of enum {nameof(OperationSideDto)}");
+            }
         }
     }
 

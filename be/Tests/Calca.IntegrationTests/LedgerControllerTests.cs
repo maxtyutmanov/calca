@@ -2,11 +2,11 @@
 using Calca.IntegrationTests.Fixture;
 using Calca.IntegrationTests.Utils;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,6 +17,7 @@ namespace Calca.IntegrationTests
     {
         private const long TestUserId1 = 1;
         private const long TestUserId2 = 2;
+        private const long TestUserId3 = 3;
 
         private readonly TestContext _ctx;
 
@@ -29,6 +30,7 @@ namespace Calca.IntegrationTests
         {
             await _ctx.AddTestUser(new User() { Id = TestUserId1, Email = "test1@test.org", Name = "test1" });
             await _ctx.AddTestUser(new User() { Id = TestUserId2, Email = "test2@test.org", Name = "test2" });
+            await _ctx.AddTestUser(new User() { Id = TestUserId3, Email = "test3@test.org", Name = "test3" });
         }
 
         public async Task DisposeAsync()
@@ -69,6 +71,40 @@ namespace Calca.IntegrationTests
         }
 
         [Fact]
+        public async Task CreateNewLedger_UpdateAndGetBack_ShouldBeUpdated()
+        {
+            // arrange
+
+            var now = DateTime.UtcNow;
+            _ctx.SetFixedMomentOfTime(now);
+            var ledgerId = await CreateTestLedger("test ledger", new[] { TestUserId1, TestUserId2 });
+            var ledgerVersion = await GetLedgerVersion(ledgerId);
+
+            // act
+            
+            await UpdateLedger(ledgerId, ledgerVersion, "test ledger 2", new[] { TestUserId2, TestUserId3 });
+
+            // assert
+
+            var expectedLedger = new
+            {
+                name = "test ledger 2",
+                members = new[]
+                {
+                    new { userId = TestUserId2 },
+                    new { userId = TestUserId3 }
+                },
+                version = ledgerVersion + 1,
+                id = ledgerId,
+                createdAt = now,
+                createdBy = 0
+            };
+
+            var fetchedLedger = await _ctx.Client.GetJsonObject(expectedLedger, $"/ledgers/{ledgerId}");
+            fetchedLedger.Should().BeEquivalentTo(expectedLedger);
+        }
+
+        [Fact]
         public async Task CreateNewOperationOnLedger_GetAllBack_ShouldBeFetched()
         {
             // arrange
@@ -88,10 +124,11 @@ namespace Calca.IntegrationTests
                 {
                     new { userId = TestUserId1, side = "creditor" },
                     new { userId = TestUserId2, side = "debtor" }
-                }
+                },
+                ledgerVersion = ledgerVersion
             };
 
-            await CreateOperation(ledgerId, ledgerVersion, operation);
+            await CreateOperation(ledgerId, operation);
 
             // assert
 
@@ -115,13 +152,42 @@ namespace Calca.IntegrationTests
             fetchedOperations.Should().BeEquivalentTo(expectedOperations);
         }
 
-        private async Task CreateOperation(long ledgerId, long ledgerVersion, object operation)
+        [Fact]
+        public async Task CreateLedger_TryAddOperationWithOldVersion_ShouldBeConflict()
         {
-            var resp = await _ctx.Client.PostJson($"/ledgers/{ledgerId}/operations", operation, req =>
+            // arrange
+
+            var now = DateTime.UtcNow;
+            _ctx.SetFixedMomentOfTime(now);
+            var ledgerId = await CreateTestLedger("test ledger", new[] { TestUserId1, TestUserId2 });
+            var ledgerVersion = await GetLedgerVersion(ledgerId);
+
+            // act, assert
+
+            var operation = new
             {
-                req.Headers.Add("x-ledger-version", ledgerVersion.ToString());
+                description = "some test operation",
+                amount = 110m,
+                members = new[]
+                {
+                    new { userId = TestUserId1, side = "creditor" },
+                    new { userId = TestUserId2, side = "debtor" }
+                },
+                ledgerVersion = ledgerVersion - 1
+            };
+
+            await CreateOperation(ledgerId, operation, resp =>
+            {
+                resp.StatusCode.Should().Be(HttpStatusCode.Conflict);
             });
-            resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        private async Task CreateOperation(long ledgerId, object operation, Action<HttpResponseMessage> handle = null)
+        {
+            var resp = await _ctx.Client.PostJson($"/ledgers/{ledgerId}/operations", operation);
+
+            handle ??= r => resp.StatusCode.Should().Be(HttpStatusCode.OK);
+            handle(resp);
         }
 
         private async Task<long> GetLedgerVersion(long ledgerId)
@@ -153,6 +219,21 @@ namespace Calca.IntegrationTests
             idStr.Should().NotBeNullOrWhiteSpace();
             long.TryParse(idStr, out var id).Should().BeTrue();
             return id;
+        }
+
+        private async Task UpdateLedger(long id, long version, string name, IEnumerable<long> memberUserIds)
+        {
+            var members = memberUserIds.Select(mid => new { userId = mid }).ToList();
+
+            var ledger = new
+            {
+                name = name,
+                members = members,
+                version = version
+            };
+
+            var updateResp = await _ctx.Client.PutJson($"/ledgers/{id}", ledger);
+            updateResp.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 }

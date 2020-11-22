@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Calca.WebApi.Accounting.Dto
 {
-    public class LedgerOperationDto
+    public class LedgerOperationReadDto
     {
         public long Id { get; set; }
         public string Description { get; set; }

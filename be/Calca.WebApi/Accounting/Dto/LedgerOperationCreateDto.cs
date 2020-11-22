@@ -7,6 +7,7 @@ namespace Calca.WebApi.Accounting.Dto
 {
     public class LedgerOperationCreateDto
     {
+        public long LedgerVersion { get; set; }
         public string Description { get; set; }
         public List<OperationMemberDto> Members { get; set; }
         public decimal Amount { get; set; }

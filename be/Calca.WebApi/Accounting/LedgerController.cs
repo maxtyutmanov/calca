@@ -2,6 +2,7 @@
 using Calca.Domain.Accounting;
 using Calca.Infrastructure;
 using Calca.WebApi.Accounting.Dto;
+using Calca.WebApi.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,10 @@ using System.Threading.Tasks;
 
 namespace Calca.WebApi.Accounting
 {
+    // TODO: authentication, validation
+
     [Route("ledgers")]
+    [LedgerConcurrencyConflictFilter]
     public class LedgerController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -44,25 +48,37 @@ namespace Calca.WebApi.Accounting
             return CreatedAtAction(nameof(Get), new { id }, null);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(long id, [FromBody]LedgerUpdateDto ledgerDto, CancellationToken ct)
+        {
+            var ledger = await _accService.GetLedger(id, ct);
+            if (ledger == null)
+                return NotFound();
+            _mapper.Map(ledgerDto, ledger);
+
+            await _accService.UpdateLedger(ledger, ledgerDto.Version, ct);
+            await _unitOfWork.Commit(ct);
+            return Ok();
+        }
+
         [HttpGet("{id}/operations")]
         public async Task<IActionResult> GetOperations(long id, CancellationToken ct)
         {
             var operations = await _accService.GetOperations(id, ct);
             var operationsDto = _mapper
-                .Map<IReadOnlyList<LedgerOperation>, IReadOnlyList<LedgerOperationDto>>(operations);
+                .Map<IReadOnlyList<LedgerOperation>, IReadOnlyList<LedgerOperationReadDto>>(operations);
             return Ok(operationsDto);
         }
 
         [HttpPost("{id}/operations")]
         public async Task<IActionResult> RegisterOperation(
             long id, 
-            [FromHeader(Name = "x-ledger-version")] long ledgerVersion,
             [FromBody] LedgerOperationCreateDto operationDto, 
             CancellationToken ct)
         {
             var operation = _mapper.Map<LedgerOperationCreateDto, LedgerOperation>(operationDto);
             operation.LedgerId = id;
-            await _accService.RegisterOperation(operation, ledgerVersion, ct);
+            await _accService.RegisterOperation(operation, operationDto.LedgerVersion, ct);
             await _unitOfWork.Commit(ct);
             return Ok();
         }

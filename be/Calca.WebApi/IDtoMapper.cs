@@ -8,5 +8,6 @@ namespace Calca.WebApi
     public interface IDtoMapper
     {
         TTarget Map<TSource, TTarget>(TSource source);
+        void Map<TSource, TTarget>(TSource source, TTarget target);
     }
 }

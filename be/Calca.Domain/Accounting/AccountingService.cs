@@ -20,6 +20,8 @@ namespace Calca.Domain.Accounting
 
         Task<long> CreateLedger(Ledger ledger, CancellationToken ct);
 
+        Task UpdateLedger(Ledger ledger, long version, CancellationToken ct);
+
         Task<IReadOnlyList<LedgerOperation>> GetOperations(long ledgerId, CancellationToken ct);
 
         Task<RegisterOperationResult> RegisterOperation(LedgerOperation operation, long ledgerVersion, CancellationToken ct);
@@ -45,6 +47,11 @@ namespace Calca.Domain.Accounting
         {
             await _ledgerRepo.Add(ledger, ct);
             return ledger.Id;
+        }
+
+        public async Task UpdateLedger(Ledger ledger, long version, CancellationToken ct)
+        {
+            await _ledgerRepo.Update(ledger, version, ct);
         }
 
         public Task<IReadOnlyList<LedgerOperation>> GetOperations(long ledgerId, CancellationToken ct)

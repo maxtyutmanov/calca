@@ -1,10 +1,8 @@
 ﻿using Calca.Domain;
 using Calca.Domain.Accounting;
 using Calca.Infrastructure.Context;
+using Calca.Infrastructure.Errors;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,13 +30,20 @@ namespace Calca.Infrastructure.Repo
             return _ctx.SaveChangesAsync(ct);
         }
 
-        public Task Update(Ledger ledger, long version, CancellationToken ct)
+        public async Task Update(Ledger ledger, long version, CancellationToken ct)
         {
             _ctx.Entry(ledger).OriginalValues[nameof(Ledger.Version)] = version;
-            // TODO: wrap concurrency exception
             ledger.IncrementVersion();
-            _ctx.Ledgers.Update(ledger);
-            return _ctx.SaveChangesAsync(ct);
+            try
+            {
+                _ctx.Ledgers.Update(ledger);
+                await _ctx.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new ConflictException(
+                    "An attempt was made to update ledger based on outdated data. Reload the ledger", ex);
+            }
         }
     }
 }

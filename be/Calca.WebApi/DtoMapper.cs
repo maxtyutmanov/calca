@@ -24,7 +24,7 @@ namespace Calca.WebApi
                 m.CreateMap<Ledger, LedgerReadDto>(MemberList.Destination);
                 m.CreateMap<LedgerMember, LedgerMemberDto>(MemberList.Destination)
                     .ForSourceMember(m => m.LedgerId, o => o.DoNotValidate());
-                m.CreateMap<LedgerOperation, LedgerOperationDto>(MemberList.Destination)
+                m.CreateMap<LedgerOperation, LedgerOperationReadDto>(MemberList.Destination)
                     .ForSourceMember(m => m.LedgerId, o => o.DoNotValidate());
                 m.CreateMap<OperationMember, OperationMemberDto>(MemberList.Destination)
                     .ForSourceMember(m => m.OperationId, o => o.DoNotValidate())
@@ -39,11 +39,14 @@ namespace Calca.WebApi
                 m.CreateMap<LedgerOperationCreateDto, LedgerOperation>()
                     .ForMember(x => x.LedgerId, o => o.Ignore())
                     .ForMember(x => x.CreatedAt, o => o.MapFrom<DateTimeUtcNowResolver<LedgerOperationCreateDto, LedgerOperation>>())
-                    .ForMember(x => x.CreatorId, o => o.Ignore());
+                    .ForMember(x => x.CreatorId, o => o.Ignore())
+                    .ForSourceMember(x => x.LedgerVersion, o => o.DoNotValidate());
 
                 // update scenario
 
-                m.CreateMap<LedgerUpdateDto, Ledger>(MemberList.Source);
+                m.CreateMap<LedgerUpdateDto, Ledger>(MemberList.Source)
+                    // not setting version in the current values, should set it to original values
+                    .ForMember(x => x.Version, o => o.Ignore());
 
                 // common
 
@@ -63,6 +66,11 @@ namespace Calca.WebApi
         public TTarget Map<TSource, TTarget>(TSource source)
         {
             return _internalMapper.Map<TSource, TTarget>(source);
+        }
+
+        public void Map<TSource, TTarget>(TSource source, TTarget target)
+        {
+            _internalMapper.Map(source, target);
         }
     }
 

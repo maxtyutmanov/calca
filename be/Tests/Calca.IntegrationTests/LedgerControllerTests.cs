@@ -153,6 +153,68 @@ namespace Calca.IntegrationTests
         }
 
         [Fact]
+        public async Task CreateNewOperationOnLedger_CancelIt_ShouldAddCompensatingOperation()
+        {
+            // arrange
+
+            var now = DateTime.UtcNow;
+            _ctx.SetFixedMomentOfTime(now);
+            var ledgerId = await CreateTestLedger("test ledger", new[] { TestUserId1, TestUserId2 });
+            var ledgerVersion = await GetLedgerVersion(ledgerId);
+
+            // act
+
+            var operation = new
+            {
+                description = "some test operation",
+                amount = 110m,
+                members = new[]
+                {
+                    new { userId = TestUserId1, side = "creditor" },
+                    new { userId = TestUserId2, side = "debtor" }
+                },
+                ledgerVersion = ledgerVersion
+            };
+
+            await CreateOperation(ledgerId, operation);
+            ledgerVersion = await GetLedgerVersion(ledgerId);
+            await CancelOperation(ledgerId, 1L, ledgerVersion);
+
+            // assert
+
+            var expectedOperations = new[]
+            {
+                new
+                {
+                    id = 1L,
+                    amount = 110m,
+                    members = new[]
+                    {
+                        new { userId = TestUserId1, side = "creditor" },
+                        new { userId = TestUserId2, side = "debtor" }
+                    },
+                    createdAt = now,
+                    createdBy = 0
+                },
+                new
+                {
+                    id = 2L,
+                    amount = 110m,
+                    members = new[]
+                    {
+                        new { userId = TestUserId2, side = "creditor" },
+                        new { userId = TestUserId1, side = "debtor" }
+                    },
+                    createdAt = now,
+                    createdBy = 0
+                }
+            };
+
+            var fetchedOperations = await _ctx.Client.GetJsonObject(expectedOperations, $"/ledgers/{ledgerId}/operations");
+            fetchedOperations.Should().BeEquivalentTo(expectedOperations);
+        }
+
+        [Fact]
         public async Task CreateLedger_TryAddOperationWithOldVersion_ShouldBeConflict()
         {
             // arrange
@@ -180,6 +242,18 @@ namespace Calca.IntegrationTests
             {
                 resp.StatusCode.Should().Be(HttpStatusCode.Conflict);
             });
+        }
+
+        private async Task CancelOperation(long ledgerId, long operationId, long ledgerVersion)
+        {
+            var cancellation = new
+            {
+                operationId = operationId,
+                ledgerVersion = ledgerVersion
+            };
+
+            var resp = await _ctx.Client.PostJson($"/ledgers/{ledgerId}/cancellations", cancellation);
+            resp.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         private async Task CreateOperation(long ledgerId, object operation, Action<HttpResponseMessage> handle = null)

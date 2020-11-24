@@ -10,6 +10,8 @@ namespace Calca.Domain.Accounting
     {
         Task<IReadOnlyList<LedgerOperation>> GetByLedger(long ledgerId, CancellationToken ct);
 
+        Task<LedgerOperation> GetById(long operationId, CancellationToken ct);
+
         Task<long> AddOperation(LedgerOperation operation, CancellationToken ct);
     }
 }

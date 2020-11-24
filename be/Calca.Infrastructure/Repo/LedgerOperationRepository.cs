@@ -26,6 +26,13 @@ namespace Calca.Infrastructure.Repo
             return operation.Id;
         }
 
+        public Task<LedgerOperation> GetById(long operationId, CancellationToken ct)
+        {
+            return _ctx.LedgerOperations
+                .Include(x => x.Members)
+                .FirstOrDefaultAsync(x => x.Id == operationId);
+        }
+
         public async Task<IReadOnlyList<LedgerOperation>> GetByLedger(long ledgerId, CancellationToken ct)
         {
             var operations = await _ctx.LedgerOperations

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Calca.Domain.Accounting
@@ -24,6 +25,12 @@ namespace Calca.Domain.Accounting
             Amount = amount;
             CreatorId = creatorId;
             CreatedAt = createdAt;
+        }
+
+        public LedgerOperation Revert(long creatorId, DateTime createdAt)
+        {
+            var members = Members.Select(m => new OperationMember(0, m.UserId, m.Side.Reverse())).ToList();
+            return new LedgerOperation(LedgerId, $"Cancels operation {Id}", members, Amount, creatorId, createdAt);
         }
     }
 }

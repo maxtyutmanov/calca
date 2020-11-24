@@ -75,6 +75,7 @@ namespace Calca.WebApi
 
         private IServiceCollection RegisterSystemServices(IServiceCollection services)
         {
+            services.AddScoped<ISecurityContext, SecurityContext>();
             services.AddSingleton<ISystemClock, SystemClock>();
             services.AddScoped<IDtoMapper, DtoMapper>();
             services.AddScoped(typeof(DateTimeUtcNowResolver<,>));

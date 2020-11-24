@@ -82,5 +82,16 @@ namespace Calca.WebApi.Accounting
             await _unitOfWork.Commit(ct);
             return Ok();
         }
+
+        [HttpPost("{ledgerId}/cancellations")]
+        public async Task<IActionResult> CancelOperation(
+            long ledgerId,
+            [FromBody] OperationCancellationDto cancellation,
+            CancellationToken ct)
+        {
+            await _accService.CancelOperation(ledgerId, cancellation.OperationId, cancellation.LedgerVersion, ct);
+            await _unitOfWork.Commit(ct);
+            return Ok();
+        }
     }
 }

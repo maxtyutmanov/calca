@@ -4,12 +4,6 @@ using System.Text;
 
 namespace Calca.Domain.Accounting
 {
-    public enum OperationSide
-    {
-        Creditor = 1,
-        Debtor = 2
-    }
-
     public class OperationMember
     {
         public long OperationId { get; private set; }

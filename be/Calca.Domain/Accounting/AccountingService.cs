@@ -25,17 +25,23 @@ namespace Calca.Domain.Accounting
         Task<IReadOnlyList<LedgerOperation>> GetOperations(long ledgerId, CancellationToken ct);
 
         Task<RegisterOperationResult> RegisterOperation(LedgerOperation operation, long ledgerVersion, CancellationToken ct);
+
+        Task<CancelOperationResult> CancelOperation(long ledgerId, long operationId, long ledgerVersion, CancellationToken ct);
     }
 
     public class AccountingService : IAccountingService
     {
         private readonly ILedgerRepository _ledgerRepo;
         private readonly ILedgerOperationRepository _operationRepo;
+        private readonly ISecurityContext _securityCtx;
+        private readonly ISystemClock _clock;
 
-        public AccountingService(ILedgerRepository ledgerRepo, ILedgerOperationRepository operationRepo)
+        public AccountingService(ILedgerRepository ledgerRepo, ILedgerOperationRepository operationRepo, ISecurityContext securityCtx, ISystemClock clock)
         {
             _ledgerRepo = ledgerRepo;
             _operationRepo = operationRepo;
+            this._securityCtx = securityCtx;
+            this._clock = clock;
         }
 
         public Task<Ledger> GetLedger(long id, CancellationToken ct)
@@ -83,6 +89,25 @@ namespace Calca.Domain.Accounting
             {
                 LedgerVersion = ledger.Version,
                 OperationId = operationId
+            };
+        }
+
+        public async Task<CancelOperationResult> CancelOperation(long ledgerId, long operationId, long ledgerVersion, CancellationToken ct)
+        {
+            var operation = await _operationRepo.GetById(operationId, ct);
+            if (operation == null)
+            {
+                // TODO: typed
+                throw new InvalidOperationException("Operation not found");
+            }
+
+            var cancelOperation = operation.Revert(_securityCtx.CurrentUserId, _clock.UtcNow);
+            var result = await RegisterOperation(cancelOperation, ledgerVersion, ct);
+
+            return new CancelOperationResult
+            {
+                CancellationOperationId = result.OperationId,
+                LedgerVersion = result.LedgerVersion
             };
         }
     }

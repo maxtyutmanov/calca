@@ -27,6 +27,8 @@ namespace Calca.Domain.Accounting
         Task<RegisterOperationResult> RegisterOperation(LedgerOperation operation, long ledgerVersion, CancellationToken ct);
 
         Task<CancelOperationResult> CancelOperation(long ledgerId, long operationId, long ledgerVersion, CancellationToken ct);
+
+        Task<BalanceSheet> GetBalanceSheet(long ledgerId, CancellationToken ct);
     }
 
     public class AccountingService : IAccountingService
@@ -109,6 +111,20 @@ namespace Calca.Domain.Accounting
                 CancellationOperationId = result.OperationId,
                 LedgerVersion = result.LedgerVersion
             };
+        }
+
+        public async Task<BalanceSheet> GetBalanceSheet(long ledgerId, CancellationToken ct)
+        {
+            var ledger = await _ledgerRepo.GetById(ledgerId, ct);
+            if (ledger == null)
+            {
+                // TODO: typed
+                throw new InvalidOperationException("Ledger was not found in database");
+            }
+
+            var allOperations = await _operationRepo.GetByLedger(ledgerId, ct);
+            var balanceSheet = new BalanceSheet(ledger.Members).AddOperations(allOperations);
+            return balanceSheet;
         }
     }
 }

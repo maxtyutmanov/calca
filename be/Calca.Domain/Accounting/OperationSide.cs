@@ -1,4 +1,6 @@
-﻿namespace Calca.Domain.Accounting
+﻿using Calca.Domain.Errors;
+
+namespace Calca.Domain.Accounting
 {
     public enum OperationSide
     {
@@ -10,9 +12,15 @@
     {
         public static OperationSide Reverse(this OperationSide side)
         {
-            // TODO: more robust
-            if (side == OperationSide.Creditor) return OperationSide.Debtor;
-            else return OperationSide.Creditor;
+            switch (side)
+            {
+                case OperationSide.Creditor:
+                    return OperationSide.Debtor;
+                case OperationSide.Debtor:
+                    return OperationSide.Creditor;
+                default:
+                    throw side.IsUnknown();
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Calca.Domain.Users;
 using Calca.IntegrationTests.Fixture;
 using Calca.IntegrationTests.Utils;
+using Calca.WebApi.Accounting.Dto;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -244,6 +245,45 @@ namespace Calca.IntegrationTests
             });
         }
 
+        [Theory]
+        [MemberData(nameof(GetTestCasesForBalanceSheetCalculation))]
+        public async Task CreateOperations_GetBalanceSheet_ShouldBeCorrect(
+            List<TestOperationDescriptor> testOps, BalanceSheetDto expectedSheet)
+        {
+            // arrange
+
+            var ledgerId = await CreateTestLedger("test ledger", new[] { TestUserId1, TestUserId2, TestUserId3 });
+            foreach (var op in testOps)
+            {
+                await CreateOperation(ledgerId, op);
+            }
+
+            // act, assert
+            var fetchedSheet = await _ctx.Client.GetJsonObject(expectedSheet, $"ledgers/{ledgerId}/balance-sheet");
+            fetchedSheet.Should().BeEquivalentTo(expectedSheet);
+        }
+
+        public static IEnumerable<object[]> GetTestCasesForBalanceSheetCalculation()
+        {
+            yield return new object[]
+            {
+                new List<TestOperationDescriptor>()
+                {
+                    new TestOperationDescriptor(new [] { TestUserId1 }, new [] { TestUserId2 }, 10m),
+                    new TestOperationDescriptor(new [] { TestUserId2 }, new [] { TestUserId3 }, 10m)
+                },
+                new BalanceSheetDto()
+                {
+                    Items = new List<BalanceSheetItemDto>()
+                    {
+                        new BalanceSheetItemDto() { UserId = TestUserId1, Balance = 10m },
+                        new BalanceSheetItemDto() { UserId = TestUserId2, Balance = 0m },
+                        new BalanceSheetItemDto() { UserId = TestUserId3, Balance = -10m }
+                    }
+                }
+            };
+        }
+
         private async Task CancelOperation(long ledgerId, long operationId, long ledgerVersion)
         {
             var cancellation = new
@@ -254,6 +294,25 @@ namespace Calca.IntegrationTests
 
             var resp = await _ctx.Client.PostJson($"/ledgers/{ledgerId}/cancellations", cancellation);
             resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        private async Task CreateOperation(long ledgerId, TestOperationDescriptor descriptor)
+        {
+            var ledgerVersion = await GetLedgerVersion(ledgerId);
+
+            var members = Enumerable.Concat(
+                descriptor.FromUserIds.Select(x => new { userId = x, side = "creditor" }),
+                descriptor.ToUserIds.Select(x => new { userId = x, side = "debtor" })).ToList();
+                
+            var operation = new
+            {
+                description = "does not matter",
+                amount = descriptor.Amount,
+                members = members,
+                ledgerVersion = ledgerVersion
+            };
+
+            await CreateOperation(ledgerId, operation);
         }
 
         private async Task CreateOperation(long ledgerId, object operation, Action<HttpResponseMessage> handle = null)
@@ -308,6 +367,20 @@ namespace Calca.IntegrationTests
 
             var updateResp = await _ctx.Client.PutJson($"/ledgers/{id}", ledger);
             updateResp.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        public class TestOperationDescriptor
+        {
+            public IEnumerable<long> FromUserIds { get; }
+            public IEnumerable<long> ToUserIds { get; }
+            public decimal Amount { get; }
+
+            public TestOperationDescriptor(IEnumerable<long> fromUserIds, IEnumerable<long> toUserIds, decimal amount)
+            {
+                FromUserIds = fromUserIds;
+                ToUserIds = toUserIds;
+                Amount = amount;
+            }
         }
     }
 }

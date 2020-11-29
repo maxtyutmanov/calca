@@ -93,5 +93,13 @@ namespace Calca.WebApi.Accounting
             await _unitOfWork.Commit(ct);
             return Ok();
         }
+
+        [HttpGet("{ledgerId}/balance-sheet")]
+        public async Task<IActionResult> GetBalanceSheet(long ledgerId, CancellationToken ct)
+        {
+            var bs = await _accService.GetBalanceSheet(ledgerId, ct);
+            var bsDto = BalanceSheetDto.FromModel(bs);
+            return Ok(bsDto);
+        }
     }
 }

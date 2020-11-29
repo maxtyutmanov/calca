@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Calca.Domain.Errors;
+using System;
 using System.Collections.Generic;
 using System.Text;
 

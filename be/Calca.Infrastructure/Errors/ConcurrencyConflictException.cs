@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Calca.Infrastructure.Errors
 {
-    public class ConflictException : Exception
+    public class ConcurrencyConflictException : Exception
     {
-        public ConflictException(string message, Exception inner)
+        public ConcurrencyConflictException(string message, Exception inner)
             : base(message, inner)
         {
         }

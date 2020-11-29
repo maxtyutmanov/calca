@@ -1,8 +1,10 @@
 using Calca.Domain;
 using Calca.Domain.Accounting;
+using Calca.Domain.Users;
 using Calca.Infrastructure;
 using Calca.Infrastructure.Context;
 using Calca.Infrastructure.Repo;
+using Calca.WebApi.Auth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +63,7 @@ namespace Calca.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseAuthentication();
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -75,10 +78,13 @@ namespace Calca.WebApi
 
         private IServiceCollection RegisterSystemServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+            services.AddCustomizedAuthentication(Configuration);
             services.AddScoped<ISecurityContext, SecurityContext>();
             services.AddSingleton<ISystemClock, SystemClock>();
             services.AddScoped<IDtoMapper, DtoMapper>();
             services.AddScoped(typeof(DateTimeUtcNowResolver<,>));
+            services.AddScoped(typeof(CurrentUserIdResolver<,>));
             return services;
         }
 
@@ -86,6 +92,7 @@ namespace Calca.WebApi
         {
             services.AddScoped<ILedgerRepository, LedgerRepository>();
             services.AddScoped<ILedgerOperationRepository, LedgerOperationRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             return services;
         }
 
@@ -93,6 +100,7 @@ namespace Calca.WebApi
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAccountingService, AccountingService>();
+            services.AddScoped<IUserService, UserService>();
             return services;
         }
     }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,8 +20,13 @@ namespace Calca.Infrastructure
         private bool _committed;
 
         public UnitOfWork(CalcaDbContext ctx)
+            : this(ctx, IsolationLevel.ReadCommitted)
         {
-            _tran = ctx.Database.BeginTransaction();
+        }
+
+        public UnitOfWork(CalcaDbContext ctx, IsolationLevel isoLevel)
+        {
+            _tran = ctx.Database.BeginTransaction(isoLevel);
         }
 
         public async Task Commit(CancellationToken ct)

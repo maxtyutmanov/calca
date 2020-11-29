@@ -29,9 +29,9 @@ namespace Calca.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            await _ctx.AddTestUser(new User() { Id = TestUserId1, Email = "test1@test.org", Name = "test1" });
-            await _ctx.AddTestUser(new User() { Id = TestUserId2, Email = "test2@test.org", Name = "test2" });
-            await _ctx.AddTestUser(new User() { Id = TestUserId3, Email = "test3@test.org", Name = "test3" });
+            await _ctx.AddTestUser(new User(TestUserId1, "test1@test.org", "test1"));
+            await _ctx.AddTestUser(new User(TestUserId2, "test2@test.org", "test2"));
+            await _ctx.AddTestUser(new User(TestUserId3, "test3@test.org", "test3"));
         }
 
         public async Task DisposeAsync()

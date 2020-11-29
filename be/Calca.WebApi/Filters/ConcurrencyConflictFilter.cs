@@ -20,7 +20,7 @@ namespace Calca.WebApi.Filters
         {
             base.OnActionExecuted(context);
 
-            if (context.Exception is ConflictException ex)
+            if (context.Exception is ConcurrencyConflictException ex)
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<ConcurrencyConflictFilter>>();
                 logger.LogWarning(ex, "Concurrency conflict when updating entity {EntityType}", EntityType);

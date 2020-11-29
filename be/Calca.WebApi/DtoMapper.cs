@@ -35,11 +35,11 @@ namespace Calca.WebApi
                 m.CreateMap<LedgerCreateDto, Ledger>()
                     .ForMember(x => x.Version, o => o.Ignore())
                     .ForMember(x => x.CreatedAt, o => o.MapFrom<DateTimeUtcNowResolver<LedgerCreateDto, Ledger>>())
-                    .ForMember(x => x.CreatorId, o => o.Ignore());
+                    .ForMember(x => x.CreatorId, o => o.MapFrom<CurrentUserIdResolver<LedgerCreateDto, Ledger>>());
                 m.CreateMap<LedgerOperationCreateDto, LedgerOperation>()
                     .ForMember(x => x.LedgerId, o => o.Ignore())
                     .ForMember(x => x.CreatedAt, o => o.MapFrom<DateTimeUtcNowResolver<LedgerOperationCreateDto, LedgerOperation>>())
-                    .ForMember(x => x.CreatorId, o => o.Ignore())
+                    .ForMember(x => x.CreatorId, o => o.MapFrom<CurrentUserIdResolver<LedgerOperationCreateDto, LedgerOperation>>())
                     .ForSourceMember(x => x.LedgerVersion, o => o.DoNotValidate());
 
                 // update scenario
@@ -100,6 +100,21 @@ namespace Calca.WebApi
                 default:
                     throw new InvalidOperationException($"Unknown value {sourceMember} of enum {nameof(OperationSideDto)}");
             }
+        }
+    }
+
+    public class CurrentUserIdResolver<TSource, TDestination> : IValueResolver<TSource, TDestination, long>
+    {
+        private readonly ISecurityContext _ctx;
+
+        public CurrentUserIdResolver(ISecurityContext ctx)
+        {
+            _ctx = ctx;
+        }
+
+        public long Resolve(TSource source, TDestination destination, long destMember, ResolutionContext context)
+        {
+            return _ctx.CurrentUserId;
         }
     }
 

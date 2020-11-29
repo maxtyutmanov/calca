@@ -41,7 +41,7 @@ namespace Calca.Infrastructure.Repo
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                throw new ConflictException(
+                throw new ConcurrencyConflictException(
                     "An attempt was made to update ledger based on outdated data. Reload the ledger", ex);
             }
         }

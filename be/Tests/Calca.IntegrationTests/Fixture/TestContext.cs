@@ -38,12 +38,13 @@ namespace Calca.IntegrationTests.Fixture
             _appFactory.Dispose();
         }
 
-        public async Task AddTestUser(User user)
+        public async Task<long> AddTestUser(User user)
         {
             using var scope = _appFactory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<CalcaDbContext>();
             db.Users.Add(user);
             await db.SaveChangesAsync();
+            return user.Id;
         }
 
         public void SetFixedMomentOfTime(DateTime utcNow)

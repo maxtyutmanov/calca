@@ -29,6 +29,7 @@ namespace Calca.WebApi
                 m.CreateMap<OperationMember, OperationMemberDto>(MemberList.Destination)
                     .ForSourceMember(m => m.OperationId, o => o.DoNotValidate())
                     .ForMember(m => m.Side, o => o.ConvertUsing<OperationSide>(new OperationSideConverter()));
+                m.CreateMap<LedgerListItem, LedgerListItemDto>(MemberList.Destination);
 
                 // create scenario
 

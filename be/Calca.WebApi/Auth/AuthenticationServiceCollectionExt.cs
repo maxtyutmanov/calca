@@ -1,5 +1,6 @@
 ﻿using Calca.Domain;
 using Calca.Domain.Users;
+using Calca.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +41,7 @@ namespace Calca.WebApi.Auth
             var uow = services.GetRequiredService<IUnitOfWork>();
             var userSvc = services.GetRequiredService<IUserService>();
             var user = await userSvc.GetOrAddUser(principal, ct);
-            (principal.Identity as ClaimsIdentity).AddClaim(new Claim("CalcaUserId", user.Id.ToString()));
+            (principal.Identity as ClaimsIdentity).AddClaim(new Claim(KnownClaimTypes.UserId, user.Id.ToString()));
             await uow.Commit(ct);
             return principal;
         }

@@ -1,5 +1,5 @@
 ﻿using Calca.Domain.Accounting;
-using Calca.WebApi.Auth;
+using Calca.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;

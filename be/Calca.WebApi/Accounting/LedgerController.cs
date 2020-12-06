@@ -1,14 +1,12 @@
 ﻿using Calca.Domain;
 using Calca.Domain.Accounting;
-using Calca.Infrastructure;
 using Calca.WebApi.Accounting.Dto;
 using Calca.WebApi.Authorization;
 using Calca.WebApi.Filters;
+using Calca.Infrastructure.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,6 +45,22 @@ namespace Calca.WebApi.Accounting
 
             var ledgerDto = _mapper.Map<Ledger, LedgerReadDto>(ledger);
             return Ok(ledgerDto);
+        }
+
+        [HttpGet("created-by-me")]
+        public async Task<IActionResult> GetLedgersCreatedByMe(CancellationToken ct)
+        {
+            var ledgerItems = await _accService.GetLedgersCreatedByUser(User.GetUserId(), ct);
+            var dtos = _mapper.Map<IReadOnlyList<LedgerListItem>, IReadOnlyList<LedgerListItemDto>>(ledgerItems);
+            return Ok(dtos);
+        }
+
+        [HttpGet("with-me")]
+        public async Task<IActionResult> GetLedgersByParticipation(CancellationToken ct)
+        {
+            var ledgerItems = await _accService.GetLedgersWithUserMember(User.GetUserId(), ct);
+            var dtos = _mapper.Map<IReadOnlyList<LedgerListItem>, IReadOnlyList<LedgerListItemDto>>(ledgerItems);
+            return Ok(dtos);
         }
 
         [HttpPost]

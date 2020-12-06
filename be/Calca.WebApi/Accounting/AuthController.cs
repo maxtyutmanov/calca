@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Calca.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,7 +16,7 @@ namespace Calca.WebApi.Accounting
         {
             if (User.Identity.IsAuthenticated)
             {
-                var id = User.FindFirstValue("CalcaUserId");
+                var id = User.FindFirstValue(KnownClaimTypes.UserId);
                 var name = User.FindFirstValue(ClaimTypes.Name);
                 var email = User.FindFirstValue(ClaimTypes.Email);
 

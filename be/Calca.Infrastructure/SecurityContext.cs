@@ -1,4 +1,5 @@
 ﻿using Calca.Domain;
+using Calca.Infrastructure.Utils;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -16,23 +17,6 @@ namespace Calca.Infrastructure
             _httpCtxAccessor = httpCtxAccessor;
         }
 
-        public long CurrentUserId
-        {
-            get
-            {
-                var user = _httpCtxAccessor.HttpContext.User;
-                if (!user.Identity.IsAuthenticated)
-                    throw new SecurityException("User is not authenticated");
-
-                var idStr = user.FindFirst("CalcaUserId")?.Value;
-                if (string.IsNullOrEmpty(idStr))
-                    throw new SecurityException("No CalcaUserId claim is found");
-
-                if (!long.TryParse(idStr, out var id))
-                    throw new SecurityException("CalcaUserId value has invalid format. It must be integer");
-
-                return id;
-            }
-        }
+        public long CurrentUserId => _httpCtxAccessor.HttpContext.User.GetUserId();
     }
 }

@@ -3,6 +3,8 @@ using Calca.Domain.Accounting;
 using Calca.Infrastructure.Context;
 using Calca.Infrastructure.Errors;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +23,26 @@ namespace Calca.Infrastructure.Repo
         {
             var ledger = await _ctx.Ledgers.Include(x => x.Members).FirstOrDefaultAsync(x => x.Id == id, ct);
             return ledger;
+        }
+
+        public async Task<IReadOnlyList<LedgerListItem>> GetByCreatorId(long creatorId, CancellationToken ct)
+        {
+            var query = 
+                from ledger in _ctx.Ledgers
+                where ledger.CreatorId == creatorId
+                select new LedgerListItem(ledger.Id, ledger.Name, ledger.CreatorId, ledger.CreatedAt);
+
+            return await query.ToListAsync(ct);
+        }
+
+        public async Task<IReadOnlyList<LedgerListItem>> GetByMemberId(long userId, CancellationToken ct)
+        {
+            var query =
+                from ledger in _ctx.Ledgers.Include(l => l.Members)
+                where ledger.Members.Any(m => m.UserId == userId)
+                select new LedgerListItem(ledger.Id, ledger.Name, ledger.CreatorId, ledger.CreatedAt);
+
+            return await query.ToListAsync(ct);
         }
 
         public Task Add(Ledger ledger, CancellationToken ct)

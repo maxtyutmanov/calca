@@ -18,6 +18,10 @@ namespace Calca.Domain.Accounting
     {
         Task<Ledger> GetLedger(long id, CancellationToken ct);
 
+        Task<IReadOnlyList<LedgerListItem>> GetLedgersCreatedByUser(long userId, CancellationToken ct);
+
+        Task<IReadOnlyList<LedgerListItem>> GetLedgersWithUserMember(long userId, CancellationToken ct);
+
         Task<long> CreateLedger(Ledger ledger, CancellationToken ct);
 
         Task UpdateLedger(Ledger ledger, long version, CancellationToken ct);
@@ -42,13 +46,23 @@ namespace Calca.Domain.Accounting
         {
             _ledgerRepo = ledgerRepo;
             _operationRepo = operationRepo;
-            this._securityCtx = securityCtx;
-            this._clock = clock;
+            _securityCtx = securityCtx;
+            _clock = clock;
         }
 
         public Task<Ledger> GetLedger(long id, CancellationToken ct)
         {
             return _ledgerRepo.GetById(id, ct);
+        }
+
+        public Task<IReadOnlyList<LedgerListItem>> GetLedgersCreatedByUser(long userId, CancellationToken ct)
+        {
+            return _ledgerRepo.GetByCreatorId(userId, ct);
+        }
+
+        public Task<IReadOnlyList<LedgerListItem>> GetLedgersWithUserMember(long userId, CancellationToken ct)
+        {
+            return _ledgerRepo.GetByMemberId(userId, ct);
         }
 
         public async Task<long> CreateLedger(Ledger ledger, CancellationToken ct)

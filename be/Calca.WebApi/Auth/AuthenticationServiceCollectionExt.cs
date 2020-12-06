@@ -1,14 +1,10 @@
 ﻿using Calca.Domain;
 using Calca.Domain.Users;
-using Calca.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +15,8 @@ namespace Calca.WebApi.Auth
     {
         public static IServiceCollection AddCustomizedAuthentication(this IServiceCollection services, IConfiguration config)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie()
@@ -32,12 +30,6 @@ namespace Calca.WebApi.Auth
                         var ct = ctx.HttpContext.RequestAborted;
                         await AddUserIdClaimToPrincipal(services, principal, ct);
                     };
-                    //o.Events.OnTicketReceived = async ctx =>
-                    //{
-                    //    ctx.HandleResponse();
-                    //    ctx.HttpContext.Response.Redirect("/");
-                    //    await ctx.HttpContext.Response.CompleteAsync();
-                    //};
                 });
 
             return services;

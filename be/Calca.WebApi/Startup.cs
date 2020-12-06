@@ -42,11 +42,12 @@ namespace Calca.WebApi
             });
             services.AddSwaggerGen(options =>
             {
+                var loginUrl = "/auth/external-login?provider=Google&returnUrl=/swagger";
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Shared Ledger Service API",
                     Version = "v1",
-                    Description = "Shared expences accounting service",
+                    Description = $"Shared expenses accounting service. <a href=\"{loginUrl}\">Login</a>",
                 });
             });
             services.AddDbContext<CalcaDbContext>(o => o.UseSqlServer(Configuration["ConnectionStrings:Main"]));

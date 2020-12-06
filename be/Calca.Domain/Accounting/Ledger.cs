@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Calca.Domain.Accounting
@@ -7,6 +8,8 @@ namespace Calca.Domain.Accounting
     public class Ledger
     {
         public long Id { get; private set; }
+
+        [Required]
         public string Name { get; private set; }
         public List<LedgerMember> Members { get; private set; }
         public long Version { get; set; }

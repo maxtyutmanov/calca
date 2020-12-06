@@ -29,9 +29,19 @@ namespace Calca.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            await _ctx.AddTestUser(new User(TestUserId1, "test1@test.org", "test1"));
-            await _ctx.AddTestUser(new User(TestUserId2, "test2@test.org", "test2"));
-            await _ctx.AddTestUser(new User(TestUserId3, "test3@test.org", "test3"));
+            var users = new List<User>()
+            {
+                new User(TestUserId1, "test1@test.org", "test1"),
+                new User(TestUserId2, "test2@test.org", "test2"),
+                new User(TestUserId3, "test3@test.org", "test3")
+            };
+
+            foreach (var user in users)
+            {
+                await _ctx.AddTestUser(user);
+            }
+
+            await _ctx.Login(users.First());
         }
 
         public async Task DisposeAsync()
@@ -64,7 +74,7 @@ namespace Calca.IntegrationTests
                 version = 1,
                 id = 1,
                 createdAt = now,
-                createdBy = 0
+                creatorId = TestUserId1
             };
 
             var fetchedLedger = await _ctx.Client.GetJsonObject(expectedLedger, $"/ledgers/{ledgerId}");
@@ -83,7 +93,7 @@ namespace Calca.IntegrationTests
 
             // act
             
-            await UpdateLedger(ledgerId, ledgerVersion, "test ledger 2", new[] { TestUserId2, TestUserId3 });
+            await UpdateLedger(ledgerId, ledgerVersion, "test ledger 2", new[] { TestUserId1, TestUserId2, TestUserId3 });
 
             // assert
 
@@ -92,13 +102,14 @@ namespace Calca.IntegrationTests
                 name = "test ledger 2",
                 members = new[]
                 {
+                    new { userId = TestUserId1 },
                     new { userId = TestUserId2 },
                     new { userId = TestUserId3 }
                 },
                 version = ledgerVersion + 1,
                 id = ledgerId,
                 createdAt = now,
-                createdBy = 0
+                creatorId = TestUserId1
             };
 
             var fetchedLedger = await _ctx.Client.GetJsonObject(expectedLedger, $"/ledgers/{ledgerId}");
@@ -145,7 +156,7 @@ namespace Calca.IntegrationTests
                         new { userId = TestUserId2, side = "debtor" }
                     },
                     createdAt = now,
-                    createdBy = 0
+                    creatorId = TestUserId1
                 }
             };
 
@@ -195,7 +206,7 @@ namespace Calca.IntegrationTests
                         new { userId = TestUserId2, side = "debtor" }
                     },
                     createdAt = now,
-                    createdBy = 0
+                    creatorId = TestUserId1
                 },
                 new
                 {
@@ -207,7 +218,7 @@ namespace Calca.IntegrationTests
                         new { userId = TestUserId1, side = "debtor" }
                     },
                     createdAt = now,
-                    createdBy = 0
+                    creatorId = TestUserId1
                 }
             };
 

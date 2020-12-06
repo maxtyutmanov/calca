@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -71,9 +72,20 @@ namespace Calca.Domain.Accounting
             return ledger.Id;
         }
 
-        public async Task UpdateLedger(Ledger ledger, long version, CancellationToken ct)
+        public async Task UpdateLedger(Ledger updatedLedger, long version, CancellationToken ct)
         {
-            await _ledgerRepo.Update(ledger, version, ct);
+            var existingLedger = await _ledgerRepo.GetById(updatedLedger.Id, ct);
+            var existingMemberIds = existingLedger.Members.Select(m => m.UserId);
+            var newMemberIds = updatedLedger.Members.Select(m => m.UserId);
+            var deletedMemberIds = existingMemberIds.Except(newMemberIds).ToList();
+
+            if (deletedMemberIds.Contains(_securityCtx.CurrentUserId))
+                throw new ValidationException("Users cannot delete themselves from the ledger");
+
+            if (await _operationRepo.ExistForUsersInLedger(updatedLedger.Id, deletedMemberIds, ct))
+                throw new ValidationException("Cannot delete member that has operations in the ledger");
+
+            await _ledgerRepo.Update(updatedLedger, version, ct);
         }
 
         public Task<IReadOnlyList<LedgerOperation>> GetOperations(long ledgerId, CancellationToken ct)

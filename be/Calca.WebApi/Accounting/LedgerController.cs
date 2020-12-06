@@ -14,7 +14,7 @@ namespace Calca.WebApi.Accounting
 {
     // TODO: validation
 
-    [Authorize]
+    //[Authorize]
     [Route("ledgers")]
     [LedgerConcurrencyConflictFilter]
     public class LedgerController : ControllerBase

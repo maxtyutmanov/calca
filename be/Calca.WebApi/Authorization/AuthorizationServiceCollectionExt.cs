@@ -15,18 +15,22 @@ namespace Calca.WebApi.Authorization
             services.AddAuthorization(o =>
             {
                 o.DefaultPolicy = authenticatedOnlyPolicy;
+
+                var ledgerAccessPolicy = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddRequirements(new LedgerParticipantRequirement())
+                    .Build();
+
                 o.AddPolicy(
                     KnownAuthzPolicies.AllowLedgerMetaEdit, 
-                    policy => policy.Combine(authenticatedOnlyPolicy).AddRequirements(new LedgerSameOwnerRequirement()));
+                    ledgerAccessPolicy);
                 o.AddPolicy(
                     KnownAuthzPolicies.AllowLedgerView,
-                    policy => policy.Combine(authenticatedOnlyPolicy).AddRequirements(new LedgerParticipantRequirement()));
+                    ledgerAccessPolicy);
                 o.AddPolicy(
-                    KnownAuthzPolicies.AllowLedgerOperationsEdit, 
-                    policy => policy.Combine(authenticatedOnlyPolicy).AddRequirements(new LedgerParticipantRequirement()));
+                    KnownAuthzPolicies.AllowLedgerOperationsEdit,
+                    ledgerAccessPolicy);
             });
 
-            services.AddSingleton<IAuthorizationHandler, LedgerSameOwnerHandler>();
             services.AddSingleton<IAuthorizationHandler, LedgerParticipantHandler>();
 
             return services;

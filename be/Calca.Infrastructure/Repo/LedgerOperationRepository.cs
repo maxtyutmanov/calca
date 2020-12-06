@@ -26,6 +26,16 @@ namespace Calca.Infrastructure.Repo
             return operation.Id;
         }
 
+        public async Task<bool> ExistForUsersInLedger(long ledgerId, IReadOnlyList<long> userIds, CancellationToken ct)
+        {
+            var query =
+                from op in _ctx.LedgerOperations.Include(x => x.Members)
+                where op.LedgerId == ledgerId && op.Members.Any(m => userIds.Contains(m.UserId))
+                select op;
+
+            return await query.AnyAsync(ct);
+        }
+
         public Task<LedgerOperation> GetById(long operationId, CancellationToken ct)
         {
             return _ctx.LedgerOperations

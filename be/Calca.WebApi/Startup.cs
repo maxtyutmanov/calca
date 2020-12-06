@@ -5,20 +5,16 @@ using Calca.Infrastructure;
 using Calca.Infrastructure.Context;
 using Calca.Infrastructure.Repo;
 using Calca.WebApi.Auth;
+using Calca.WebApi.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Calca.WebApi
 {
@@ -71,6 +67,7 @@ namespace Calca.WebApi
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Shared Ledger Service API V1");
             });
             app.UseRouting();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -81,6 +78,7 @@ namespace Calca.WebApi
         {
             services.AddHttpContextAccessor();
             services.AddCustomizedAuthentication(Configuration);
+            services.AddCustomizedAuthorization();
             services.AddScoped<ISecurityContext, SecurityContext>();
             services.AddSingleton<ISystemClock, SystemClock>();
             services.AddScoped<IDtoMapper, DtoMapper>();

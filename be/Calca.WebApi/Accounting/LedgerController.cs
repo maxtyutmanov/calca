@@ -2,7 +2,9 @@
 using Calca.Domain.Accounting;
 using Calca.Infrastructure;
 using Calca.WebApi.Accounting.Dto;
+using Calca.WebApi.Authorization;
 using Calca.WebApi.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace Calca.WebApi.Accounting
 {
-    // TODO: authentication, validation
+    // TODO: validation
 
+    [Authorize]
     [Route("ledgers")]
     [LedgerConcurrencyConflictFilter]
     public class LedgerController : ControllerBase
@@ -21,12 +24,14 @@ namespace Calca.WebApi.Accounting
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDtoMapper _mapper;
         private readonly IAccountingService _accService;
+        private readonly IAuthorizationService _authService;
 
-        public LedgerController(IUnitOfWork unitOfWork, IDtoMapper mapper, IAccountingService accService)
+        public LedgerController(IUnitOfWork unitOfWork, IDtoMapper mapper, IAccountingService accService, IAuthorizationService authService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _accService = accService;
+            _authService = authService;
         }
 
         [HttpGet("{id}")]
@@ -35,6 +40,11 @@ namespace Calca.WebApi.Accounting
             var ledger = await _accService.GetLedger(id, ct);
             if (ledger == null)
                 return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerView);
+            if (!authz.Succeeded)
+                return NotFound();
+
             var ledgerDto = _mapper.Map<Ledger, LedgerReadDto>(ledger);
             return Ok(ledgerDto);
         }
@@ -54,6 +64,11 @@ namespace Calca.WebApi.Accounting
             var ledger = await _accService.GetLedger(id, ct);
             if (ledger == null)
                 return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerMetaEdit);
+            if (!authz.Succeeded)
+                return NotFound();
+
             _mapper.Map(ledgerDto, ledger);
 
             await _accService.UpdateLedger(ledger, ledgerDto.Version, ct);
@@ -64,6 +79,14 @@ namespace Calca.WebApi.Accounting
         [HttpGet("{id}/operations")]
         public async Task<IActionResult> GetOperations(long id, CancellationToken ct)
         {
+            var ledger = await _accService.GetLedger(id, ct);
+            if (ledger == null)
+                return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerView);
+            if (!authz.Succeeded)
+                return NotFound();
+
             var operations = await _accService.GetOperations(id, ct);
             var operationsDto = _mapper
                 .Map<IReadOnlyList<LedgerOperation>, IReadOnlyList<LedgerOperationReadDto>>(operations);
@@ -76,6 +99,14 @@ namespace Calca.WebApi.Accounting
             [FromBody] LedgerOperationCreateDto operationDto, 
             CancellationToken ct)
         {
+            var ledger = await _accService.GetLedger(id, ct);
+            if (ledger == null)
+                return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerOperationsEdit);
+            if (!authz.Succeeded)
+                return NotFound();
+
             var operation = _mapper.Map<LedgerOperationCreateDto, LedgerOperation>(operationDto);
             operation.LedgerId = id;
             await _accService.RegisterOperation(operation, operationDto.LedgerVersion, ct);
@@ -89,6 +120,14 @@ namespace Calca.WebApi.Accounting
             [FromBody] OperationCancellationDto cancellation,
             CancellationToken ct)
         {
+            var ledger = await _accService.GetLedger(ledgerId, ct);
+            if (ledger == null)
+                return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerOperationsEdit);
+            if (!authz.Succeeded)
+                return NotFound();
+
             await _accService.CancelOperation(ledgerId, cancellation.OperationId, cancellation.LedgerVersion, ct);
             await _unitOfWork.Commit(ct);
             return Ok();
@@ -97,6 +136,14 @@ namespace Calca.WebApi.Accounting
         [HttpGet("{ledgerId}/balance-sheet")]
         public async Task<IActionResult> GetBalanceSheet(long ledgerId, CancellationToken ct)
         {
+            var ledger = await _accService.GetLedger(ledgerId, ct);
+            if (ledger == null)
+                return NotFound();
+
+            var authz = await _authService.AuthorizeAsync(User, ledger, KnownAuthzPolicies.AllowLedgerView);
+            if (!authz.Succeeded)
+                return NotFound();
+
             var bs = await _accService.GetBalanceSheet(ledgerId, ct);
             var bsDto = BalanceSheetDto.FromModel(bs);
             return Ok(bsDto);

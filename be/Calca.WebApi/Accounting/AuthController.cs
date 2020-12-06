@@ -22,7 +22,7 @@ namespace Calca.WebApi.Accounting
                 return Ok(new { id, name, email });
             }
 
-            return NoContent();
+            return Unauthorized();
         }
 
         [HttpGet("external-login")]
